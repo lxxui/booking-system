@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="th" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Booking Studio - จองคิวบริการออนไลน์</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Sarabun:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Plus Jakarta Sans', 'Sarabun', sans-serif; }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 antialiased">
+
+  <!-- Navbar -->
+  <nav class="fixed top-0 left-0 right-0 bg-white/80 backdrop-blur-md z-50 border-b border-slate-100">
+    <div class="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
+      <div class="flex items-center gap-2 font-bold text-lg text-slate-900">
+        <span class="w-8 h-8 rounded-lg bg-blue-600 text-white flex items-center justify-center text-sm shadow-md shadow-blue-500/30">⚡</span>
+        BookingStudio
+      </div>
+      <div class="hidden md:flex items-center gap-8 text-sm font-medium text-slate-600">
+        <a href="#services" class="hover:text-blue-600 transition">บริการของเรา</a>
+        <a href="#reviews" class="hover:text-blue-600 transition">รีวิว</a>
+        <a href="#contact" class="hover:text-blue-600 transition">สถานที่ & ติดต่อ</a>
+      </div>
+      <a href="#booking-form" class="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-semibold shadow-md shadow-blue-500/20 transition">
+        จองคิวทันที
+      </a>
+    </div>
+  </nav>
+
+  <!-- Hero Section -->
+  <section class="pt-32 pb-20 px-6 bg-gradient-to-b from-blue-50/50 to-transparent">
+    <div class="max-w-4xl mx-auto text-center space-y-6">
+      <span class="px-4 py-1.5 bg-blue-100 text-blue-700 rounded-full text-xs font-semibold tracking-wide uppercase inline-block">
+        ✨ สัมผัสประสบการณ์บริการระดับพรีเมียม
+      </span>
+      <h1 class="text-4xl md:text-6xl font-extrabold text-slate-900 tracking-tight leading-tight">
+        จองคิวง่าย สะดวก รวดเร็ว <br><span class="text-blue-600">ไม่ต้องรอหน้าร้าน</span>
+      </h1>
+      <p class="text-slate-600 text-base md:text-lg max-w-2xl mx-auto font-normal">
+        เลือกแพ็กเกจบริการที่คุณต้องการ นัดหมายเวลาที่สะดวก แล้วเข้ารับบริการได้ทันทีโดยไม่ต้องต่อคิว
+      </p>
+      <div class="pt-4 flex justify-center gap-4">
+        <a href="#booking-form" class="px-8 py-3.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-base font-semibold shadow-lg shadow-blue-500/25 transition">
+          เริ่มต้นจองคิว
+        </a>
+        <a href="#services" class="px-8 py-3.5 bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 rounded-xl text-base font-semibold transition">
+          ดูแพ็กเกจทั้งหมด
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Services & Packages Section -->
+  <section id="services" class="py-20 px-6 max-w-6xl mx-auto">
+    <div class="text-center max-w-xl mx-auto mb-12">
+      <h2 class="text-2xl md:text-3xl font-bold text-slate-900">แพ็กเกจและบริการของเรา</h2>
+      <p class="text-slate-500 text-sm mt-2">เลือกแพ็กเกจที่เหมาะกับคุณ พร้อมรายละเอียดราคาและระยะเวลาบริการ</p>
+    </div>
+
+    <!-- Cards Container (Rendered Dynamic via JS) -->
+    <div id="serviceCards" class="grid grid-cols-1 md:grid-cols-3 gap-8">
+      <div class="col-span-3 text-center text-slate-400 py-8">กำลังโหลดรายการบริการ...</div>
+    </div>
+  </section>
+
+  <!-- Reviews Section -->
+  <section id="reviews" class="py-20 px-6 bg-slate-100/70 border-y border-slate-200/60">
+    <div class="max-w-6xl mx-auto">
+      <div class="text-center max-w-xl mx-auto mb-12">
+        <h2 class="text-2xl md:text-3xl font-bold text-slate-900">รีวิวจากลูกค้าของเรา</h2>
+        <p class="text-slate-500 text-sm mt-2">ความประทับใจจากผู้เข้าใช้บริการจริง</p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm space-y-4">
+          <div class="text-amber-400 text-sm">★★★★★</div>
+          <p class="text-slate-600 text-sm">"ระบบจองคิวง่ายมาก มาถึงได้ทำตรงเวลาเลย ช่างใส่ใจรายละเอียดบริการดีมากครับ"</p>
+          <div class="font-semibold text-xs text-slate-900">— คุณกิตติศักดิ์</div>
+        </div>
+        <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm space-y-4">
+          <div class="text-amber-400 text-sm">★★★★★</div>
+          <p class="text-slate-600 text-sm">"ประทับใจความตรงเวลา ร้านสะอาด บรรยากาศดี ไม่ต้องไปนั่งแออัดรอคิวหน้าร้านอีกต่อไป"</p>
+          <div class="font-semibold text-xs text-slate-900">— คุณอนันต์</div>
+        </div>
+        <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm space-y-4">
+          <div class="text-amber-400 text-sm">★★★★★</div>
+          <p class="text-slate-600 text-sm">"จองผ่านเว็บสะดวกมาก ได้รับบริการรวดเร็วและคุ้มค่ากับราคา แนะนำเลยครับ"</p>
+          <div class="font-semibold text-xs text-slate-900">— คุณภัทรพล</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Booking Form Section -->
+  <section id="booking-form" class="py-20 px-6 max-w-3xl mx-auto">
+    <div class="bg-white p-8 md:p-10 rounded-3xl border border-slate-200/80 shadow-xl space-y-6">
+      <div class="text-center">
+        <h2 class="text-2xl font-bold text-slate-900">🗓️ ฟอร์มจองคิวบริการ</h2>
+        <p class="text-slate-500 text-sm mt-1">กรุณาเลือกบริการและระบุ Slot ID เพื่อทำการจองคิว</p>
+      </div>
+
+      <form id="publicBookingForm" class="space-y-5">
+        <div>
+          <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-2">เลือกบริการ</label>
+          <select id="serviceSelect" class="w-full bg-slate-50 border border-slate-200 text-slate-800 rounded-xl p-3.5 focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition outline-none font-medium text-sm" required>
+            <option value="">-- กำลังโหลดบริการ... --</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-2">รอบเวลา (Slot ID)</label>
+          <input type="number" id="slotId" class="w-full bg-slate-50 border border-slate-200 text-slate-800 rounded-xl p-3.5 focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition outline-none font-medium text-sm" placeholder="ใส่รหัสช่วงเวลา เช่น 1" required>
+        </div>
+
+        <button type="submit" class="w-full py-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl shadow-lg shadow-blue-500/25 transition duration-200">
+          ยืนยันการจองคิว
+        </button>
+      </form>
+
+      <div id="alertBox" class="hidden p-4 rounded-xl text-sm font-medium transition-all text-center"></div>
+    </div>
+  </section>
+
+  <!-- Location & Contact Section -->
+  <section id="contact" class="py-16 px-6 bg-slate-900 text-white">
+    <div class="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-10 items-center">
+      <div class="space-y-4">
+        <h2 class="text-2xl font-bold">📍 ที่ตั้งร้านและการติดต่อ</h2>
+        <p class="text-slate-400 text-sm leading-relaxed">
+          123/45 ถนนสุขุมวิท แขวงคลองเตย เขตคลองเตย กรุงเทพมหานคร 10110<br>
+          เปิดให้บริการทุกวัน: 10:00 น. - 20:00 น.
+        </p>
+        <div class="pt-2 text-sm text-slate-300 space-y-1">
+          <p>📞 โทร: 02-123-4567</p>
+          <p>💬 Line Official: @bookingstudio</p>
+        </div>
+      </div>
+      <div class="bg-slate-800 p-6 rounded-2xl border border-slate-700 text-center">
+        <span class="text-slate-400 text-sm">🗺️ Google Maps Location (Simulated)</span>
+        <div class="w-full h-40 bg-slate-700 rounded-xl mt-3 flex items-center justify-center text-slate-500 text-xs">
+          [ Map View ]
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="py-6 text-center text-xs text-slate-400 bg-slate-950">
+    © 2026 BookingStudio. All rights reserved. (Portfolio Project)
+  </footer>
+
+  <script>
+    const API_URL = 'http://localhost:3000/api';
+
+    // ดึงบริการมาสร้าง Package Cards + Dropdown
+    async function fetchServices() {
+      try {
+        const res = await fetch(`${API_URL}/services`);
+        const result = await res.json();
+
+        if (result.status === 'success') {
+          const select = document.getElementById('serviceSelect');
+          const cardsContainer = document.getElementById('serviceCards');
+          
+          select.innerHTML = '<option value="">-- เลือกบริการที่ต้องการ --</option>';
+          cardsContainer.innerHTML = '';
+
+          result.data.forEach(s => {
+            // Render Select Options
+            select.innerHTML += `<option value="${s.id}">${s.service_name} • (฿${Number(s.price).toLocaleString()})</option>`;
+
+            // Render Package Cards
+            cardsContainer.innerHTML += `
+              <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col justify-between hover:shadow-md transition">
+                <div>
+                  <div class="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center text-xl mb-4">✂️</div>
+                  <h3 class="font-bold text-slate-900 text-lg mb-1">${s.service_name}</h3>
+                  <p class="text-xs text-slate-400 mb-4">ระยะเวลาให้บริการ ${s.duration_minutes} นาที</p>
+                  <p class="text-2xl font-extrabold text-slate-900">฿${Number(s.price).toLocaleString()}</p>
+                </div>
+                <a href="#booking-form" onclick="selectService(${s.id})" class="mt-6 w-full py-2.5 bg-slate-50 hover:bg-blue-50 text-slate-700 hover:text-blue-600 border border-slate-200 rounded-xl text-center text-xs font-semibold transition">
+                  เลือกแพ็กเกจนี้
+                </a>
+              </div>
+            `;
+          });
+        }
+      } catch (err) {
+        document.getElementById('serviceCards').innerHTML = '<div class="col-span-3 text-center text-rose-500">ไม่สามารถโหลดข้อมูลบริการได้</div>';
+      }
+    }
+
+    function selectService(id) {
+      document.getElementById('serviceSelect').value = id;
+    }
+
+    // Submit Booking Form
+    document.getElementById('publicBookingForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      try {
+        const res = await fetch(`${API_URL}/bookings`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            service_id: Number(document.getElementById('serviceSelect').value),
+            slot_id: Number(document.getElementById('slotId').value),
+            status: 'pending'
+          })
+        });
+        const result = await res.json();
+        if (res.ok && result.status === 'success') {
+          showAlert('🎉 จองคิวสำเร็จแล้ว! กรุณารอเจ้าของร้านยืนยันคิว', 'success');
+          document.getElementById('publicBookingForm').reset();
+        } else {
+          showAlert('❌ ' + (result.message || 'เกิดข้อผิดพลาดในการจอง'), 'error');
+        }
+      } catch (err) {
+        showAlert('❌ ไม่สามารถเชื่อมต่อกับ Server ได้', 'error');
+      }
+    });
+
+    function showAlert(msg, type) {
+      const box = document.getElementById('alertBox');
+      box.classList.remove('hidden');
+      box.className = `p-4 rounded-xl text-sm font-medium border ${
+        type === 'success' 
+          ? 'bg-emerald-50 border-emerald-200 text-emerald-800' 
+          : 'bg-rose-50 border-rose-200 text-rose-800'
+      }`;
+      box.textContent = msg;
+    }
+
+    fetchServices();
+  </script>
+</body>
+</html>

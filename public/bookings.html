@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>จัดการรายการจอง - Booking App (Admin)</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Sarabun:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Plus Jakarta Sans', 'Sarabun', sans-serif; }
+  </style>
+</head>
+<body class="bg-slate-50 flex min-h-screen antialiased text-slate-800">
+
+  <div id="sidebar-container"></div>
+
+  <main class="flex-1 p-6 md:p-10 max-w-6xl mx-auto">
+    
+    <header class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8 pb-6 border-b border-slate-200">
+      <div>
+        <h1 class="text-2xl font-bold text-slate-900 tracking-tight">📋 ระบบจัดการรายการจอง (คนรับคิว)</h1>
+        <p class="text-sm text-slate-500 mt-1">ตรวจสอบและกดอนุมัติหรือยกเลิกคิวของลูกค้าได้ที่นี่</p>
+      </div>
+      <button onclick="fetchBookings()" class="px-4 py-2 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-sm font-semibold rounded-xl shadow-sm transition flex items-center gap-2 w-fit">
+        <span>🔄 รีเฟรชข้อมูล</span>
+      </button>
+    </header>
+
+    <div class="bg-white rounded-2xl shadow-sm border border-slate-200/80 overflow-hidden">
+      <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse text-sm">
+          <thead>
+            <tr class="bg-slate-50/80 border-b border-slate-200 text-xs font-semibold uppercase tracking-wider text-slate-500">
+              <th class="py-4 px-6">Booking ID</th>
+              <th class="py-4 px-6">บริการ</th>
+              <th class="py-4 px-6">Slot ID</th>
+              <th class="py-4 px-6">ราคา</th>
+              <th class="py-4 px-6">สถานะปัจจุบัน</th>
+              <th class="py-4 px-6 text-center">จัดการคิว</th>
+            </tr>
+          </thead>
+          <tbody id="bookingsTableBody" class="divide-y divide-slate-100 font-medium">
+            <tr>
+              <td colspan="6" class="text-center py-10 text-slate-400">กำลังโหลดข้อมูล...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+
+  <script src="components/sidebar.js"></script>
+  <script>
+    renderSidebar('list');
+
+    const API_URL = 'http://localhost:3000/api';
+
+    async function fetchBookings() {
+      const tbody = document.getElementById('bookingsTableBody');
+      tbody.innerHTML = `<tr><td colspan="6" class="text-center py-10 text-slate-400">กำลังดึงข้อมูล...</td></tr>`;
+
+      try {
+        const res = await fetch(`${API_URL}/bookings`);
+        const result = await res.json();
+
+        if (result.status === 'success' && result.data.length > 0) {
+          tbody.innerHTML = '';
+          result.data.forEach(item => {
+            const serviceName = item.services ? item.services.service_name : 'ไม่ระบุบริการ';
+            const price = item.services ? `฿${Number(item.services.price).toLocaleString()}` : '-';
+
+            tbody.innerHTML += `
+              <tr class="hover:bg-slate-50/80 transition-colors">
+                <td class="py-4 px-6 font-bold text-slate-900">#BK-${item.id}</td>
+                <td class="py-4 px-6 font-semibold text-slate-800">${serviceName}</td>
+                <td class="py-4 px-6">
+                  <span class="px-2.5 py-1 bg-slate-100 text-slate-700 rounded-lg text-xs font-semibold">Slot #${item.slot_id}</span>
+                </td>
+                <td class="py-4 px-6 font-semibold text-slate-900">${price}</td>
+                <td class="py-4 px-6">${getStatusBadge(item.status)}</td>
+                <td class="py-4 px-6 text-center">
+                  <div class="flex items-center justify-center gap-2">
+                    <button onclick="updateStatus(${item.id}, 'confirmed')" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-semibold shadow-sm transition">
+                      ✓ รับคิว
+                    </button>
+                    <button onclick="updateStatus(${item.id}, 'cancelled')" class="px-3 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 rounded-lg text-xs font-semibold transition">
+                      ✕ ยกเลิก
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            `;
+          });
+        } else {
+          tbody.innerHTML = `<tr><td colspan="6" class="text-center py-10 text-slate-400">ยังไม่มีรายการจองคิว</td></tr>`;
+        }
+      } catch (err) {
+        tbody.innerHTML = `<tr><td colspan="6" class="text-center py-10 text-rose-500">เกิดข้อผิดพลาดในการโหลดข้อมูล</td></tr>`;
+      }
+    }
+
+    // ฟังก์ชันยิง API อัปเดตสถานะคิว
+    async function updateStatus(bookingId, newStatus) {
+      try {
+        const res = await fetch(`${API_URL}/bookings/${bookingId}/status`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ status: newStatus })
+        });
+        const result = await res.json();
+        if (res.ok && result.status === 'success') {
+          fetchBookings(); // รีโหลดตารางใหม่เพื่อแสดงสถานะล่าสุด
+        } else {
+          alert('ไม่สามารถเปลี่ยนสถานะได้: ' + result.message);
+        }
+      } catch (err) {
+        alert('เกิดข้อผิดพลาดในการเชื่อมต่อกับ Server');
+      }
+    }
+
+    function getStatusBadge(status) {
+      if (status === 'confirmed') {
+        return `<span class="px-3 py-1 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-full text-xs font-semibold inline-flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>รับคิวแล้ว</span>`;
+      } else if (status === 'cancelled') {
+        return `<span class="px-3 py-1 bg-rose-50 text-rose-700 border border-rose-200 rounded-full text-xs font-semibold inline-flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span>ยกเลิกคิวแล้ว</span>`;
+      }
+      return `<span class="px-3 py-1 bg-amber-50 text-amber-700 border border-amber-200 rounded-full text-xs font-semibold inline-flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>รอดำเนินการ</span>`;
+    }
+
+    fetchBookings();
+  </script>
+</body>
+</html>
