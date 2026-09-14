@@ -1,0 +1,28 @@
+/* eslint-env node */
+const express = require('express');
+const router = express.Router();
+
+// POST /api/auth/login - ตรวจสอบรหัสผ่าน Admin
+router.post('/login', (req, res) => {
+  const { username, password } = req.body;
+
+  // กำหนด Username / Password สำหรับทดสอบ (หรือเก็บใน .env)
+  const ADMIN_USER = process.env.ADMIN_USER || 'admin';
+  const ADMIN_PASS = process.env.ADMIN_PASS || '123456';
+
+  if (username === ADMIN_USER && password === ADMIN_PASS) {
+    // ในระบบจริงจะส่ง JWT Token กลับไป แต่ขั้นตอนเบื้องต้นส่ง status success
+    res.status(200).json({
+      success: true,
+      message: 'เข้าสู่ระบบสำเร็จ',
+      token: 'admin-secret-token-12345'
+    });
+  } else {
+    res.status(401).json({
+      success: false,
+      message: 'ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง'
+    });
+  }
+});
+
+module.exports = router;
