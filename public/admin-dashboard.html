@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - สถิติการจองคิว</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Sarabun:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+    <!-- Flatpickr CDN -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://npmcdn.com/flatpickr/dist/l10n/th.js"></script>
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', 'Sarabun', sans-serif;
+        }
+    </style>
+</head>
+
+<body class="bg-slate-900/5 antialiased min-h-screen flex text-slate-800">
+
+    <!-- 1. คอนเทนเนอร์สำหรับวาง Sidebar (ปรับลบ flex min-h-screen ออกเพื่อป้องกัน Layout เพี้ยน) -->
+    <div id="sidebar-container"></div>
+
+    <!-- 2. พื้นที่แสดงเนื้อหาหลัก -->
+    <main class="flex-1 p-4 sm:p-8 overflow-y-auto max-w-7xl mx-auto">
+        <div class="space-y-8">
+
+            <!-- Header & Filter Controls -->
+            <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-6 bg-white p-6 rounded-3xl border border-slate-200/80 shadow-sm">
+                <div>
+                    <div class="flex items-center gap-2 mb-1">
+                        <span class="inline-flex items-center justify-center w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                        <span class="text-xs font-semibold text-emerald-600 uppercase tracking-wider">Live Analytics</span>
+                    </div>
+                    <h1 class="text-2xl font-bold text-slate-900 tracking-tight">📊 สถิติการเข้าใช้บริการ</h1>
+                    <p class="text-xs text-slate-500 mt-0.5">วิเคราะห์ช่วงเวลาที่มีลูกค้าใช้งานเยอะที่สุด (Peak Hours)</p>
+                </div>
+
+                <!-- Filter Bar & Export -->
+                <div class="flex flex-wrap items-center gap-3">
+                    <!-- Quick Range Dropdown -->
+                    <div class="relative">
+                        <select id="quickRange" onchange="handleQuickRange(this.value)"
+                            class="appearance-none pl-3.5 pr-8 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-700 hover:bg-slate-100/80 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition cursor-pointer shadow-sm">
+                            <option value="all">ทั้งหมด</option>
+                            <option value="today">วันนี้</option>
+                            <option value="7days">7 วันล่าสุด</option>
+                            <option value="thisMonth">เดือนนี้</option>
+                        </select>
+                        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-slate-400">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                        </div>
+                    </div>
+
+                    <!-- Custom Date Range Picker -->
+                    <div class="flex items-center gap-2 bg-slate-50 px-3 py-1.5 border border-slate-200 rounded-xl shadow-sm text-xs">
+                        <input type="text" id="startDate" placeholder="วัน/เดือน/ปี" readonly
+                            class="bg-transparent text-slate-700 font-medium focus:outline-none cursor-pointer w-24 text-center">
+                        <span class="text-slate-400 font-bold">-</span>
+                        <input type="text" id="endDate" placeholder="วัน/เดือน/ปี" readonly
+                            class="bg-transparent text-slate-700 font-medium focus:outline-none cursor-pointer w-24 text-center">
+                    </div>
+
+                    <!-- Export CSV Button -->
+                    <button onclick="exportCSV()"
+                        class="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white rounded-xl text-xs font-semibold shadow-md shadow-emerald-600/20 transition-all flex items-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
+                            </path>
+                        </svg>
+                        <span>ส่งออก CSV</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Overview Stat Cards -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+                <div class="bg-white p-6 rounded-3xl border border-slate-200/80 shadow-sm hover:shadow-md transition-shadow">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">การจองทั้งหมด</span>
+                        <div class="w-10 h-10 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center font-bold">📅</div>
+                    </div>
+                    <div class="mt-4 flex items-baseline gap-2">
+                        <h2 id="totalCount" class="text-3xl font-extrabold text-slate-900 tracking-tight">0</h2>
+                        <span class="text-xs text-slate-400 font-medium">รายการ</span>
+                    </div>
+                </div>
+
+                <div class="bg-white p-6 rounded-3xl border border-slate-200/80 shadow-sm hover:shadow-md transition-shadow">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-semibold text-emerald-600 uppercase tracking-wider">อนุมัติแล้ว</span>
+                        <div class="w-10 h-10 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold">✅</div>
+                    </div>
+                    <div class="mt-4 flex items-baseline gap-2">
+                        <h2 id="confirmedCount" class="text-3xl font-extrabold text-emerald-600 tracking-tight">0</h2>
+                        <span class="text-xs text-emerald-600/70 font-medium">รายการ</span>
+                    </div>
+                </div>
+
+                <div class="bg-white p-6 rounded-3xl border border-slate-200/80 shadow-sm hover:shadow-md transition-shadow">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-semibold text-amber-600 uppercase tracking-wider">รอดำเนินการ</span>
+                        <div class="w-10 h-10 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center font-bold">⏳</div>
+                    </div>
+                    <div class="mt-4 flex items-baseline gap-2">
+                        <h2 id="pendingCount" class="text-3xl font-extrabold text-amber-600 tracking-tight">0</h2>
+                        <span class="text-xs text-amber-600/70 font-medium">รายการ</span>
+                    </div>
+                </div>
+
+                <div class="bg-white p-6 rounded-3xl border border-slate-200/80 shadow-sm hover:shadow-md transition-shadow">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-semibold text-rose-600 uppercase tracking-wider">ยกเลิกแล้ว</span>
+                        <div class="w-10 h-10 rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center font-bold">❌</div>
+                    </div>
+                    <div class="mt-4 flex items-baseline gap-2">
+                        <h2 id="cancelledCount" class="text-3xl font-extrabold text-rose-600 tracking-tight">0</h2>
+                        <span class="text-xs text-rose-600/70 font-medium">รายการ</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Chart Section -->
+            <div class="bg-white p-6 sm:p-8 rounded-3xl border border-slate-200/80 shadow-sm space-y-6">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 pb-4">
+                    <div>
+                        <h3 class="font-bold text-slate-900 text-base flex items-center gap-2">
+                            📈 ความหนาแน่นของลูกค้าตามช่วงเวลา (Slots)
+                        </h3>
+                        <p class="text-xs text-slate-400 mt-0.5">วิเคราะห์เพื่อจัดสรรเจ้าหน้าที่บริการให้ตรงกับความต้องการ</p>
+                    </div>
+                    <span class="text-xs bg-slate-100 text-slate-600 font-semibold px-3 py-1 rounded-full self-start sm:self-auto" id="chartRangeLabel">
+                        แสดงข้อมูลทั้งหมด
+                    </span>
+                </div>
+                <div class="relative w-full h-80">
+                    <canvas id="slotChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Recent Bookings Table Section -->
+            <div class="bg-white rounded-3xl border border-slate-200/80 shadow-sm overflow-hidden">
+                <div class="p-6 border-b border-slate-100 flex items-center justify-between">
+                    <div>
+                        <h3 class="font-bold text-slate-900 text-base">📋 รายการจองล่าสุด</h3>
+                        <p class="text-xs text-slate-400 mt-0.5">แสดงข้อมูลการจองในระบบ</p>
+                    </div>
+                    <a href="/admin" class="text-xs font-semibold text-blue-600 hover:text-blue-700 transition">ดูทั้งหมด →</a>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-xs">
+                        <thead class="bg-slate-50 border-b border-slate-100 text-slate-400 font-semibold uppercase tracking-wider">
+                            <tr>
+                                <th class="px-6 py-3.5">วันที่จอง</th>
+                                <th class="px-6 py-3.5">ชื่อลูกค้า</th>
+                                <th class="px-6 py-3.5">เบอร์โทร</th>
+                                <th class="px-6 py-3.5">บริการ</th>
+                                <th class="px-6 py-3.5">ช่วงเวลา</th>
+                                <th class="px-6 py-3.5">สถานะ</th>
+                            </tr>
+                        </thead>
+                        <tbody id="recentBookingsTable" class="divide-y divide-slate-100 text-slate-700 font-medium">
+                            <tr>
+                                <td colspan="6" class="px-6 py-8 text-center text-slate-400">กำลังโหลดข้อมูล...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <script>
+        function renderSidebar(activeMenu) {
+            const sidebarHTML = `
+            <aside class="w-64 bg-slate-950 text-white min-h-screen p-6 flex flex-col justify-between shrink-0 border-r border-slate-800 sticky top-0 h-screen">
+              <div>
+                <div class="flex items-center gap-3.5 mb-8 px-2">
+                  <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-blue-600 to-indigo-500 flex items-center justify-center shadow-lg shadow-blue-500/30 font-bold text-lg text-white">⚡</div>
+                  <div>
+                    <h1 class="font-bold text-base tracking-tight text-white leading-none">BookingApp</h1>
+                    <span class="text-[10px] text-blue-400 font-semibold tracking-wider uppercase">Admin Panel</span>
+                  </div>
+                </div>
+                
+                <nav class="space-y-1.5">
+                  <a href="/admin-dashboard" class="flex items-center gap-3 px-4 py-3 rounded-2xl transition-all duration-200 ${activeMenu === 'dashboard' ? 'bg-blue-600 text-white font-semibold shadow-lg shadow-blue-600/30' : 'hover:bg-slate-900 text-slate-400 hover:text-slate-200'}">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
+                    <span class="text-xs">Dashboard & สถิติ</span>
+                  </a>
+
+                  <a href="/admin" class="flex items-center gap-3 px-4 py-3 rounded-2xl transition-all duration-200 ${activeMenu === 'list' ? 'bg-blue-600 text-white font-semibold shadow-lg shadow-blue-600/30' : 'hover:bg-slate-900 text-slate-400 hover:text-slate-200'}">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 002 2h2a2 2 0 002-2"></path></svg>
+                    <span class="text-xs font-medium">จัดการรายการจอง</span>
+                  </a>
+
+                  <a href="/services" class="flex items-center gap-3 px-4 py-3 rounded-2xl transition-all duration-200 ${activeMenu === 'services' ? 'bg-blue-600 text-white font-semibold shadow-lg shadow-blue-600/30' : 'hover:bg-slate-900 text-slate-400 hover:text-slate-200'}">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+                    <span class="text-xs font-medium">จัดการแพ็กเกจบริการ</span>
+                  </a>
+                </nav>
+
+                <div class="my-6 border-t border-slate-800/80"></div>
+
+                <a href="/" target="_blank" class="flex items-center gap-3 px-4 py-3 rounded-2xl text-slate-400 hover:text-white hover:bg-slate-900 transition-all duration-200">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+                  <span class="text-xs font-medium">ดูหน้าเว็บฝั่งลูกค้า</span>
+                </a>
+              </div>
+
+              <div class="text-[11px] text-slate-500 border-t border-slate-800/80 pt-4 px-2 flex items-center justify-between">
+                <span>Portfolio Project</span>
+                <span class="bg-slate-900 border border-slate-800 text-slate-400 px-2 py-0.5 rounded-lg text-[10px]">v1.0</span>
+              </div>
+            </aside>
+          `;
+            document.getElementById('sidebar-container').innerHTML = sidebarHTML;
+        }
+
+        renderSidebar('dashboard');
+
+        const API_URL = '/api';
+        const token = localStorage.getItem('adminToken');
+        let chartInstance = null;
+        let currentRawStats = null;
+        let startPicker = null;
+        let endPicker = null;
+
+        if (!token) {
+            window.location.href = '/login';
+        }
+
+        document.addEventListener("DOMContentLoaded", function() {
+            const config = {
+                locale: "th",
+                dateFormat: "d/m/Y",
+                altInput: false,
+                onChange: function() {
+                    fetchDashboardStats();
+                }
+            };
+
+            startPicker = flatpickr("#startDate", config);
+            endPicker = flatpickr("#endDate", config);
+        });
+
+        function getApiDateValue(pickerInstance) {
+            if (!pickerInstance || !pickerInstance.selectedDates[0]) return '';
+            const d = pickerInstance.selectedDates[0];
+            const month = String(d.getMonth() + 1).padStart(2, '0');
+            const day = String(d.getDate()).padStart(2, '0');
+            return `${d.getFullYear()}-${month}-${day}`;
+        }
+
+        function handleQuickRange(val) {
+            const today = new Date();
+
+            if (val === 'today') {
+                startPicker.setDate(today);
+                endPicker.setDate(today);
+            } else if (val === '7days') {
+                const past = new Date();
+                past.setDate(today.getDate() - 7);
+                startPicker.setDate(past);
+                endPicker.setDate(today);
+            } else if (val === 'thisMonth') {
+                const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
+                startPicker.setDate(firstDay);
+                endPicker.setDate(today);
+            } else {
+                startPicker.clear();
+                endPicker.clear();
+            }
+
+            fetchDashboardStats();
+        }
+
+        function formatDateThai(dateString) {
+            if (!dateString) return '-';
+            const date = new Date(dateString);
+            if (isNaN(date.getTime())) return '-';
+
+            return date.toLocaleDateString('th-TH', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric',
+                timeZone: 'Asia/Bangkok'
+            });
+        }
+
+        async function fetchDashboardStats() {
+            const startDate = getApiDateValue(startPicker);
+            const endDate = getApiDateValue(endPicker);
+
+            let queryParams = new URLSearchParams();
+            if (startDate) queryParams.append('startDate', startDate);
+            if (endDate) queryParams.append('endDate', endDate);
+
+            try {
+                const res = await fetch(`${API_URL}/admin/stats?${queryParams.toString()}`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (res.status === 401 || res.status === 403) {
+                    localStorage.removeItem('adminToken');
+                    return window.location.href = '/login';
+                }
+
+                const result = await res.json();
+
+                if (res.ok && result.status === 'success') {
+                    const { summary, slotStats, recentBookings } = result.data;
+                    currentRawStats = slotStats;
+
+                    document.getElementById('totalCount').textContent = summary.totalBookings || 0;
+                    document.getElementById('confirmedCount').textContent = summary.confirmedBookings || 0;
+                    document.getElementById('pendingCount').textContent = summary.pendingBookings || 0;
+                    document.getElementById('cancelledCount').textContent = summary.cancelledBookings || 0;
+
+                    renderChart(slotStats || {});
+                    renderRecentBookings(recentBookings || []);
+                }
+            } catch (err) {
+                console.error('Fetch Stats Error:', err);
+            }
+        }
+
+        function renderChart(slotStats) {
+            const labels = Object.keys(slotStats);
+            const dataValues = Object.values(slotStats);
+            const ctx = document.getElementById('slotChart').getContext('2d');
+
+            if (chartInstance) {
+                chartInstance.destroy();
+            }
+
+            const gradient = ctx.createLinearGradient(0, 0, 0, 300);
+            gradient.addColorStop(0, 'rgba(37, 99, 235, 0.9)');
+            gradient.addColorStop(1, 'rgba(99, 102, 241, 0.2)');
+
+            chartInstance = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels.length > 0 ? labels : ['ไม่มีข้อมูลการจอง'],
+                    datasets: [{
+                        label: 'จำนวนลูกค้า (คน)',
+                        data: dataValues.length > 0 ? dataValues : [0],
+                        backgroundColor: gradient,
+                        borderColor: '#2563eb',
+                        borderWidth: 2,
+                        borderRadius: 12,
+                        borderSkipped: false,
+                        maxBarThickness: 48
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: '#0f172a',
+                            titleFont: { family: 'Sarabun', size: 13, weight: 'bold' },
+                            bodyFont: { family: 'Sarabun', size: 12 },
+                            padding: 12,
+                            cornerRadius: 12,
+                            displayColors: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: { color: '#f1f5f9' },
+                            ticks: { stepSize: 1, precision: 0, font: { family: 'Sarabun' } }
+                        },
+                        x: {
+                            grid: { display: false },
+                            ticks: { font: { family: 'Sarabun' } }
+                        }
+                    }
+                }
+            });
+        }
+
+        function renderRecentBookings(bookings) {
+            const tableBody = document.getElementById('recentBookingsTable');
+            if (bookings.length === 0) {
+                tableBody.innerHTML = `<tr><td colspan="6" class="px-6 py-8 text-center text-slate-400">ยังไม่มีรายการจองเข้าอยู่ในขณะนี้</td></tr>`;
+                return;
+            }
+
+            const getStatusBadge = (status) => {
+                if (status === 'confirmed') return `<span class="px-2.5 py-1 bg-emerald-50 text-emerald-600 rounded-full text-[11px] font-semibold border border-emerald-200/60">อนุมัติแล้ว</span>`;
+                if (status === 'pending') return `<span class="px-2.5 py-1 bg-amber-50 text-amber-600 rounded-full text-[11px] font-semibold border border-amber-200/60">รอดำเนินการ</span>`;
+                return `<span class="px-2.5 py-1 bg-rose-50 text-rose-600 rounded-full text-[11px] font-semibold border border-rose-200/60">ยกเลิก</span>`;
+            };
+
+            tableBody.innerHTML = bookings.slice(0, 5).map(b => {
+                const bookingDate = formatDateThai(b.booking_date || b.created_at);
+                const serviceName = b.services?.service_name || 'บริการทั่วไป';
+                const startTime = b.slots ? new Date(b.slots.start_time).toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' }) : '-';
+                const endTime = b.slots ? new Date(b.slots.end_time).toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' }) : '-';
+
+                return `
+                    <tr class="hover:bg-slate-50/80 transition-colors">
+                        <td class="px-6 py-4 text-slate-500 font-medium">${bookingDate}</td>
+                        <td class="px-6 py-4 font-semibold text-slate-800">${b.customer_name || 'ไม่ระบุชื่อ'}</td>
+                        <td class="px-6 py-4 text-slate-500">${b.customer_phone || '-'}</td>
+                        <td class="px-6 py-4 text-slate-600">${serviceName}</td>
+                        <td class="px-6 py-4 text-slate-500">${startTime} - ${endTime} น.</td>
+                        <td class="px-6 py-4">${getStatusBadge(b.status)}</td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function exportCSV() {
+            if (!currentRawStats || Object.keys(currentRawStats).length === 0) {
+                alert('ไม่มีข้อมูลสำหรับส่งออก');
+                return;
+            }
+
+            let csvContent = "\uFEFFรอบเวลา (Slot),จำนวนลูกค้า (คน)\n";
+            for (const [slot, count] of Object.entries(currentRawStats)) {
+                csvContent += `"${slot}",${count}\n`;
+            }
+
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            link.setAttribute("href", url);
+            link.setAttribute("download", `booking_stats_${new Date().toISOString().split('T')[0]}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        fetchDashboardStats();
+    </script>
+</body>
+
+</html>

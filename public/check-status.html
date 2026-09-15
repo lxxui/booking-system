@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ตรวจสอบสถานะการจอง</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-50 min-h-screen flex items-center justify-center p-4">
+
+  <div class="max-w-md w-full bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
+    <h1 class="text-xl font-bold text-slate-800 text-center mb-1">🔍 ตรวจสอบสถานะการจอง</h1>
+    <p class="text-xs text-slate-500 text-center mb-6">กรอกหมายเลขการจอง หรือ เบอร์โทรศัพท์ที่ใช้จองคิว</p>
+
+    <!-- ช่องค้นหา -->
+    <div class="flex gap-2 mb-6">
+      <input type="text" id="searchInput" placeholder="ระบุเบอร์โทรศัพท์"  maxlength="10"
+             class="w-full px-4 py-2.5 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+      <button onclick="checkStatus()" class="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-semibold transition shrink-0">
+        ค้นหา
+      </button>
+    </div>
+
+    <!-- ผลการค้นหา -->
+    <div id="resultContainer" class="space-y-3"></div>
+  </div>
+
+  <script>
+    async function checkStatus() {
+      const query = document.getElementById('searchInput').value.trim();
+      const container = document.getElementById('resultContainer');
+
+      if (!query) return alert('กรุณากรอกข้อมูลค้นหา');
+
+      container.innerHTML = `<p class="text-center text-sm text-slate-400 py-4">กำลังค้นหา...</p>`;
+
+      try {
+        const res = await fetch(`/api/bookings/search?query=${query}`);
+        const result = await res.json();
+
+        if (result.status === 'success' && result.data.length > 0) {
+          container.innerHTML = '';
+          result.data.forEach(item => {
+            const isCancelled = item.status === 'cancelled';
+            const serviceName = item.services?.service_name || 'ไม่ระบุบริการ';
+            
+            container.innerHTML += `
+              <div class="p-4 border border-slate-200 rounded-xl bg-slate-50/50 space-y-2">
+                <div class="flex justify-between items-center">
+                  <span class="font-bold text-slate-900 text-sm">#BK-${item.id}</span>
+                  ${getStatusBadge(item.status)}
+                </div>
+                
+                <p class="text-xs text-slate-600"><strong>บริการ:</strong> ${serviceName}</p>
+
+                <!-- แสดงเหตุผลถ้าถูกยกเลิก -->
+                ${isCancelled ? `
+                  <div class="mt-2 p-2.5 bg-rose-50 border border-rose-200 rounded-lg text-xs text-rose-700">
+                    <strong>เหตุผลการยกเลิก:</strong> ${item.cancel_reason || 'ไม่ได้ระบุเหตุผล'}
+                  </div>
+                ` : ''}
+              </div>
+            `;
+          });
+        } else {
+          container.innerHTML = `<p class="text-center text-sm text-slate-400 py-4">ไม่พบข้อมูลการจอง</p>`;
+        }
+      } catch (err) {
+        container.innerHTML = `<p class="text-center text-sm text-rose-500 py-4">เกิดข้อผิดพลาดในการเชื่อมต่อ</p>`;
+      }
+    }
+
+    function getStatusBadge(status) {
+      if (status === 'confirmed') {
+        return `<span class="px-2.5 py-1 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-full text-xs font-semibold">อนุมัติแล้ว</span>`;
+      } else if (status === 'cancelled') {
+        return `<span class="px-2.5 py-1 bg-rose-50 text-rose-700 border border-rose-200 rounded-full text-xs font-semibold">ยกเลิกแล้ว</span>`;
+      }
+      return `<span class="px-2.5 py-1 bg-amber-50 text-amber-700 border border-amber-200 rounded-full text-xs font-semibold">รอดำเนินการ</span>`;
+    }
+  </script>
+</body>
+</html>
