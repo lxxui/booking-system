@@ -6,169 +6,342 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Booking Studio - จองคิวบริการออนไลน์</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- SweetAlert2 CSS & JS -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <!-- Supabase JS SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
     <link
-        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Sarabun:wght@400;500;600;700&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Noto+Serif+Thai:wght@500;600;700&family=IBM+Plex+Sans+Thai:wght@400;500;600;700&display=swap"
         rel="stylesheet">
     <style>
-        body {
-            font-family: 'Plus Jakarta Sans', 'Sarabun', sans-serif;
+        :root {
+            --ink: #171512;
+            --ink-soft: #57534A;
+            --bone: #EFE9DD;
+            --paper: #FBF8F2;
+            --moss: #4B5D46;
+            --moss-dark: #3B4A38;
+            --brass: #B9915B;
+            --rose: #C97B6C;
         }
+
+        body {
+            font-family: 'IBM Plex Sans Thai', sans-serif;
+            background-color: var(--bone);
+            color: var(--ink);
+        }
+
+        .font-display {
+            font-family: 'Noto Serif Thai', serif;
+        }
+
+        /* ----- Marquee ----- */
+        @keyframes marquee {
+            0% { transform: translateX(0%); }
+            100% { transform: translateX(-50%); }
+        }
+
+        .animate-marquee {
+            display: flex;
+            width: max-content;
+            animation: marquee 32s linear infinite;
+        }
+
+        .animate-marquee:hover {
+            animation-play-state: paused;
+        }
+
+        /* ----- Ticket stub perforation ----- */
+        .stub-line {
+            position: relative;
+            border-top: 2px dashed rgba(23, 21, 18, 0.18);
+        }
+
+        .stub-line::before,
+        .stub-line::after {
+            content: "";
+            position: absolute;
+            top: -9px;
+            width: 18px;
+            height: 18px;
+            border-radius: 999px;
+            background: var(--notch-color, var(--bone));
+        }
+
+        .stub-line::before { left: -9px; }
+        .stub-line::after { right: -9px; }
+
+        .stub-card {
+            --notch-color: var(--bone);
+        }
+
+        .stub-card-dark {
+            --notch-color: var(--ink);
+        }
+
+        .ticket-notch-left,
+        .ticket-notch-right {
+            position: absolute;
+            width: 22px;
+            height: 22px;
+            border-radius: 999px;
+            background: var(--bone);
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 10;
+        }
+
+        .ticket-notch-left { left: -11px; }
+        .ticket-notch-right { right: -11px; }
     </style>
 </head>
 
-<body class="bg-slate-50 text-slate-800 antialiased">
+<body class="antialiased">
 
     <!-- Navbar -->
-    <nav class="fixed top-0 left-0 right-0 bg-white/80 backdrop-blur-md z-50 border-b border-slate-100">
+    <nav class="fixed top-0 left-0 right-0 bg-[var(--paper)]/90 backdrop-blur-md z-50 border-b border-[var(--ink)]/10">
         <div class="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
-            <div class="flex items-center gap-2 font-bold text-lg text-slate-900">
-                <span
-                    class="w-8 h-8 rounded-lg bg-blue-600 text-white flex items-center justify-center text-sm shadow-md shadow-blue-500/30">⚡</span>
+            <div class="flex items-center gap-2.5 font-display font-semibold text-lg text-[var(--ink)]">
+                <span class="w-8 h-8 rounded-full border-2 border-dashed border-[var(--brass)] text-[var(--brass)] flex items-center justify-center text-xs font-sans font-bold">01</span>
                 BookingStudio
             </div>
-            <div class="hidden md:flex items-center gap-8 text-sm font-medium text-slate-600">
-                <a href="#services" class="hover:text-blue-600 transition">บริการของเรา</a>
-                <a href="#reviews" class="hover:text-blue-600 transition">รีวิว</a>
-                <a href="#contact" class="hover:text-blue-600 transition">สถานที่ & ติดต่อ</a>
+            <div class="hidden md:flex items-center gap-8 text-sm font-medium text-[var(--ink-soft)]">
+                <a href="#services" class="hover:text-[var(--moss)] transition">บริการของเรา</a>
+                <a href="#reviews" class="hover:text-[var(--moss)] transition">รีวิว</a>
+                <a href="#contact" class="hover:text-[var(--moss)] transition">สถานที่ & ติดต่อ</a>
             </div>
             <a href="#booking-form"
-                class="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-semibold shadow-md shadow-blue-500/20 transition">
+                class="px-5 py-2.5 bg-[var(--moss)] hover:bg-[var(--moss-dark)] text-[var(--paper)] rounded-full text-sm font-semibold transition">
                 จองคิวทันที
             </a>
         </div>
     </nav>
 
     <!-- Hero Section -->
-    <section class="pt-32 pb-20 px-6 bg-gradient-to-b from-blue-50/50 to-transparent">
-        <div class="max-w-4xl mx-auto text-center space-y-6">
-            <span
-                class="px-4 py-1.5 bg-blue-100 text-blue-700 rounded-full text-xs font-semibold tracking-wide uppercase inline-block">
-                ✨ สัมผัสประสบการณ์บริการระดับพรีเมียม
-            </span>
-            <h1 class="text-4xl md:text-6xl font-extrabold text-slate-900 tracking-tight leading-tight">
-                จองคิวง่าย สะดวก รวดเร็ว <br><span class="text-blue-600">ไม่ต้องรอหน้าร้าน</span>
-            </h1>
-            <p class="text-slate-600 text-base md:text-lg max-w-2xl mx-auto font-normal">
-                เลือกแพ็กเกจบริการที่คุณต้องการ นัดหมายเวลาที่สะดวก แล้วเข้ารับบริการได้ทันทีโดยไม่ต้องต่อคิว
-            </p>
-            <div class="pt-4 flex justify-center gap-4">
-                <a href="#booking-form"
-                    class="px-8 py-3.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-base font-semibold shadow-lg shadow-blue-500/25 transition">
-                    เริ่มต้นจองคิว
-                </a>
-                <a href="#services"
-                    class="px-8 py-3.5 bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 rounded-xl text-base font-semibold transition">
-                    ดูแพ็กเกจทั้งหมด
-                </a>
+    <section class="pt-32 pb-24 px-6 bg-[var(--ink)] text-[var(--paper)]">
+        <div class="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-14 items-center">
+
+            <!-- ซ้าย: ข้อความหลัก -->
+            <div class="space-y-7">
+                <span class="text-xs font-medium text-[var(--brass)] tracking-wide">จองคิวบริการล่วงหน้า ไม่ต้องรอหน้าร้าน</span>
+                <h1 class="font-display text-4xl md:text-5xl font-semibold leading-[1.25] text-[var(--paper)]">
+                    เลือกวัน เลือกเวลา<br>รับบัตรคิวของคุณ<br>ในไม่กี่วินาที
+                </h1>
+                <p class="text-[var(--paper)]/70 text-base max-w-md leading-relaxed">
+                    ดูแพ็กเกจ เลือกรอบเวลาที่ว่าง แล้วกรอกชื่อกับเบอร์โทร ระบบจะออกหมายเลขจองให้ทันทีเพื่อใช้ตรวจสอบสถานะภายหลัง
+                </p>
+                <div class="flex flex-wrap gap-4 pt-2">
+                    <a href="#booking-form"
+                        class="px-8 py-3.5 bg-[var(--moss)] hover:bg-[var(--moss-dark)] text-[var(--paper)] rounded-full text-base font-semibold transition">
+                        เริ่มต้นจองคิว
+                    </a>
+                    <a href="#services"
+                        class="px-8 py-3.5 border border-[var(--paper)]/25 hover:border-[var(--paper)]/50 text-[var(--paper)] rounded-full text-base font-semibold transition">
+                        ดูแพ็กเกจทั้งหมด
+                    </a>
+                </div>
             </div>
+
+            <!-- ขวา: บัตรคิวตัวอย่าง (decorative) -->
+            <div class="relative mx-auto max-w-sm w-full">
+                <div class="relative bg-[var(--paper)] text-[var(--ink)] rounded-2xl p-7 shadow-2xl">
+                    <span class="ticket-notch-left"></span>
+                    <span class="ticket-notch-right"></span>
+                    <div class="flex items-center justify-between">
+                        <span class="text-[11px] font-medium text-[var(--ink-soft)]">บัตรคิวตัวอย่าง</span>
+                        <span class="text-[11px] font-medium text-[var(--moss)]">รอยืนยัน</span>
+                    </div>
+                    <p class="font-display text-5xl font-bold text-[var(--brass)] mt-3">คิวที่ 014</p>
+                    <div class="stub-line stub-card mt-6 pt-5">
+                        <p class="font-display text-lg font-semibold">ทรีตเมนต์ผมสไตล์พรีเมียม</p>
+                        <p class="text-sm text-[var(--ink-soft)] mt-1">เสาร์ที่ 20 ก.ย. · 14:00 - 14:45 น.</p>
+                    </div>
+                    <div class="flex items-center justify-between mt-5 text-sm">
+                        <span class="text-[var(--ink-soft)]">คุณปอนด์ · 081-234-5678</span>
+                        <span class="font-semibold text-[var(--ink)]">฿890</span>
+                    </div>
+                </div>
+            </div>
+
         </div>
     </section>
 
     <!-- Services & Packages Section -->
     <section id="services" class="py-20 px-6 max-w-6xl mx-auto">
-        <div class="text-center max-w-xl mx-auto mb-12">
-            <h2 class="text-2xl md:text-3xl font-bold text-slate-900">แพ็กเกจและบริการของเรา</h2>
-            <p class="text-slate-500 text-sm mt-2">เลือกแพ็กเกจที่เหมาะกับคุณ พร้อมรายละเอียดราคาและระยะเวลาบริการ</p>
+        <div class="max-w-xl mb-12">
+            <h2 class="font-display text-2xl md:text-3xl font-semibold text-[var(--ink)]">แพ็กเกจและบริการของเรา</h2>
+            <p class="text-[var(--ink-soft)] text-sm mt-2">เลือกแพ็กเกจที่เหมาะกับคุณ พร้อมราคาและระยะเวลาบริการ</p>
         </div>
 
         <!-- Cards Container (Rendered Dynamic via JS) -->
         <div id="serviceCards" class="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div class="col-span-3 text-center text-slate-400 py-8">กำลังโหลดรายการบริการ...</div>
+            <div class="col-span-3 text-center text-[var(--ink-soft)] py-8">กำลังโหลดรายการบริการ...</div>
         </div>
     </section>
 
-    <!-- Reviews Section -->
-    <section id="reviews" class="py-20 px-6 bg-slate-100/70 border-y border-slate-200/60">
+    <section id="reviews" class="py-20 px-6 bg-[var(--ink)] text-[var(--paper)] overflow-hidden">
         <div class="max-w-6xl mx-auto">
-            <div class="text-center max-w-xl mx-auto mb-12">
-                <h2 class="text-2xl md:text-3xl font-bold text-slate-900">รีวิวจากลูกค้าของเรา</h2>
-                <p class="text-slate-500 text-sm mt-2">ความประทับใจจากผู้เข้าใช้บริการจริง</p>
+            <!-- Header & ปุ่มเขียนรีวิว -->
+            <div class="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-4">
+                <div>
+                    <h2 class="font-display text-2xl md:text-3xl font-semibold">รีวิวจากลูกค้าของเรา</h2>
+                    <p class="text-[var(--paper)]/60 text-sm mt-2">ความประทับใจจากผู้เข้าใช้บริการจริง</p>
+                </div>
+                <div>
+                    <button onclick="openReviewModal()" type="button"
+                        class="px-5 py-2.5 bg-[var(--brass)] hover:brightness-110 text-[var(--ink)] text-xs font-semibold rounded-full transition-all flex items-center gap-2">
+                        เขียนรีวิวของคุณ
+                    </button>
+                </div>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm space-y-4">
-                    <div class="text-amber-400 text-sm">★★★★★</div>
-                    <p class="text-slate-600 text-sm">"ระบบจองคิวง่ายมาก มาถึงได้ทำตรงเวลาเลย
-                        ช่างใส่ใจรายละเอียดบริการดีมากครับ"
-                    </p>
-                    <div class="font-semibold text-xs text-slate-900">— คุณกิตติศักดิ์</div>
-                </div>
-                <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm space-y-4">
-                    <div class="text-amber-400 text-sm">★★★★★</div>
-                    <p class="text-slate-600 text-sm">"ประทับใจความตรงเวลา ร้านสะอาด บรรยากาศดี
-                        ไม่ต้องไปนั่งแออัดรอคิวหน้าร้านอีกต่อไป"</p>
-                    <div class="font-semibold text-xs text-slate-900">— คุณอนันต์</div>
-                </div>
-                <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm space-y-4">
-                    <div class="text-amber-400 text-sm">★★★★★</div>
-                    <p class="text-slate-600 text-sm">"จองผ่านเว็บสะดวกมาก ได้รับบริการรวดเร็วและคุ้มค่ากับราคา
-                        แนะนำเลยครับ"</p>
-                    <div class="font-semibold text-xs text-slate-900">— คุณภัทรพล</div>
+            <!-- Wrapper สำหรับทำเอฟเฟกต์เลื่อนอัตโนมัติ -->
+            <div
+                class="relative w-full overflow-hidden [mask-image:_linear-gradient(to_right,transparent_0,_black_128px,_black_calc(100%-128px),transparent_100%)]">
+                <div id="reviewsContainer" class="flex gap-6">
+                    <div class="w-full text-center py-8 text-xs text-[var(--paper)]/50">กำลังโหลดรีวิว...</div>
                 </div>
             </div>
         </div>
     </section>
+
+    <!-- Modal สำหรับส่งรีวิวใหม่ -->
+    <div id="reviewModal"
+        class="fixed inset-0 bg-[var(--ink)]/50 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+        <div
+            class="bg-[var(--paper)] rounded-2xl max-w-md w-full p-6 shadow-xl space-y-4 max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center">
+                <h3 class="font-display font-semibold text-[var(--ink)] text-base">เขียนรีวิวบริการ</h3>
+                <button onclick="closeReviewModal()" class="text-[var(--ink-soft)] hover:text-[var(--ink)] text-lg">✕</button>
+            </div>
+
+            <form id="reviewForm" onsubmit="submitReview(event)" class="space-y-3.5">
+                <!-- ชื่อผู้รีวิว -->
+                <div>
+                    <label class="block text-xs font-medium text-[var(--ink)] mb-1">ชื่อของคุณ</label>
+                    <input type="text" id="reviewerName" required
+                        class="w-full px-3 py-2 border border-[var(--ink)]/15 bg-white rounded-xl text-xs focus:ring-2 focus:ring-[var(--moss)]/20 focus:border-[var(--moss)] outline-none"
+                        placeholder="เช่น คุณสมชาย">
+                </div>
+
+                <!-- Dropdown สำหรับเลือกบริการ/แพ็กเกจ -->
+                <div>
+                    <label class="block text-xs font-medium text-[var(--ink)] mb-1">แพ็กเกจที่มาใช้บริการ</label>
+                    <select id="reviewService" required
+                        class="w-full px-3 py-2 border border-[var(--ink)]/15 bg-white rounded-xl text-xs focus:ring-2 focus:ring-[var(--moss)]/20 focus:border-[var(--moss)] outline-none">
+                        <option value="" disabled selected>กำลังโหลดรายชื่อแพ็กเกจ...</option>
+                    </select>
+                </div>
+
+                <!-- คะแนนดาว -->
+                <div>
+                    <label class="block text-xs font-medium text-[var(--ink)] mb-1">ให้คะแนนความพึงพอใจ</label>
+                    <select id="reviewRating"
+                        class="w-full px-3 py-2 border border-[var(--ink)]/15 bg-white rounded-xl text-xs focus:ring-2 focus:ring-[var(--moss)]/20 focus:border-[var(--moss)] outline-none">
+                        <option value="5">⭐⭐⭐⭐⭐ (5/5 ประทับใจมาก)</option>
+                        <option value="4">⭐⭐⭐⭐☆ (4/5 ดีมาก)</option>
+                        <option value="3">⭐⭐⭐☆☆ (3/5 ปานกลาง)</option>
+                        <option value="2">⭐⭐☆☆☆ (2/5 ควรปรับปรุง)</option>
+                        <option value="1">⭐☆☆☆☆ (1/5 ไม่พอใจ)</option>
+                    </select>
+                </div>
+
+                <!-- Quick Emoji Badges -->
+                <div>
+                    <label class="block text-xs font-medium text-[var(--ink)] mb-1.5">จุดที่ประทับใจ (เลือกได้มากกว่า 1
+                        ข้อ)</label>
+                    <div class="flex flex-wrap gap-1.5" id="emojiTags">
+                        <button type="button" onclick="toggleTag(this, '⚡ ตรงเวลา')"
+                            class="tag-btn text-[11px] px-2.5 py-1 bg-[var(--bone)] border border-transparent rounded-lg text-[var(--ink-soft)] transition-all hover:brightness-95">⚡
+                            ตรงเวลา</button>
+                        <button type="button" onclick="toggleTag(this, '✂️ ฝีมือดี')"
+                            class="tag-btn text-[11px] px-2.5 py-1 bg-[var(--bone)] border border-transparent rounded-lg text-[var(--ink-soft)] transition-all hover:brightness-95">✂️
+                            ฝีมือดี</button>
+                        <button type="button" onclick="toggleTag(this, '🧼 ร้านสะอาด')"
+                            class="tag-btn text-[11px] px-2.5 py-1 bg-[var(--bone)] border border-transparent rounded-lg text-[var(--ink-soft)] transition-all hover:brightness-95">🧼
+                            ร้านสะอาด</button>
+                        <button type="button" onclick="toggleTag(this, '😊 บริการดี')"
+                            class="tag-btn text-[11px] px-2.5 py-1 bg-[var(--bone)] border border-transparent rounded-lg text-[var(--ink-soft)] transition-all hover:brightness-95">😊
+                            บริการดี</button>
+                    </div>
+                </div>
+
+                <!-- ข้อความรีวิวเพิ่มเติม -->
+                <div>
+                    <label class="block text-xs font-medium text-[var(--ink)] mb-1">ความคิดเห็นเพิ่มเติม <span
+                            class="text-[var(--ink-soft)] font-normal">(ไม่บังคับ)</span></label>
+                    <textarea id="reviewComment" rows="3"
+                        class="w-full px-3 py-2 border border-[var(--ink)]/15 bg-white rounded-xl text-xs focus:ring-2 focus:ring-[var(--moss)]/20 focus:border-[var(--moss)] outline-none"
+                        placeholder="พิมพ์บอกเล่ารายละเอียดเพิ่มเติม..."></textarea>
+                </div>
+
+                <button type="submit"
+                    class="w-full py-2.5 bg-[var(--moss)] hover:bg-[var(--moss-dark)] text-[var(--paper)] font-semibold text-xs rounded-full transition">
+                    ส่งรีวิว
+                </button>
+            </form>
+        </div>
+    </div>
 
     <!-- Booking Form Section -->
     <section id="booking-form" class="py-20 px-6 max-w-3xl mx-auto">
-        <div class="bg-white p-8 md:p-10 rounded-3xl border border-slate-200/80 shadow-xl space-y-6">
+        <div class="relative bg-[var(--paper)] p-8 md:p-10 rounded-2xl shadow-xl space-y-6">
+            <span class="ticket-notch-left"></span>
+            <span class="ticket-notch-right"></span>
+
             <div class="text-center">
-                <h2 class="text-2xl font-bold text-slate-900">🗓️ ฟอร์มจองคิวบริการ</h2>
-                <p class="text-slate-500 text-sm mt-1">กรุณาเลือกบริการและระบุ Slot ID เพื่อทำการจองคิว</p>
+                <h2 class="font-display text-2xl font-semibold text-[var(--ink)]">ฟอร์มจองคิวบริการ</h2>
+                <p class="text-[var(--ink-soft)] text-sm mt-1">กรุณาเลือกบริการและรอบเวลาเพื่อทำการจองคิว</p>
             </div>
 
             <form id="publicBookingForm" class="space-y-5">
                 <!-- 1. เลือกบริการ -->
                 <div>
-                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-2">
-                        1. เลือกบริการ
-                    </label>
+                    <label class="block text-xs font-semibold text-[var(--ink-soft)] mb-2">1.
+                        เลือกบริการ</label>
                     <select id="serviceSelect"
-                        class="w-full bg-slate-50 border border-slate-200 text-slate-800 rounded-xl p-3.5 focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition outline-none font-medium text-sm"
+                        class="w-full bg-white border border-[var(--ink)]/15 text-[var(--ink)] rounded-xl p-3.5 focus:border-[var(--moss)] focus:ring-4 focus:ring-[var(--moss)]/10 transition outline-none font-medium text-sm"
                         required>
-                        <option value="">-- เลือกบริการ --</option>
+                        <option value="">-- กำลังโหลดบริการ... --</option>
                     </select>
                 </div>
 
                 <!-- 2. ช่องกรอกชื่อเล่นและเบอร์โทรศัพท์ -->
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
                     <div>
-                        <label class="block text-xs font-semibold text-slate-700 mb-1">
-                            ชื่อเล่นของคุณ <span class="text-rose-500">*</span>
-                        </label>
+                        <label class="block text-xs font-semibold text-[var(--ink)] mb-1">ชื่อเล่นของคุณ <span
+                                class="text-[var(--rose)]">*</span></label>
                         <input type="text" id="customerNameInput" required placeholder="เช่น ปอนด์"
-                            class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition">
+                            class="w-full px-3.5 py-2.5 bg-white border border-[var(--ink)]/15 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-[var(--moss)]/20 focus:border-[var(--moss)] transition">
                     </div>
                     <div>
-                        <label class="block text-xs font-semibold text-slate-700 mb-1">
-                            เบอร์โทรศัพท์ <span class="text-rose-500">*</span>
-                        </label>
+                        <label class="block text-xs font-semibold text-[var(--ink)] mb-1">เบอร์โทรศัพท์ <span
+                                class="text-[var(--rose)]">*</span></label>
                         <input type="tel" id="phoneInput" required placeholder="เช่น 0812345678" maxlength="10"
-                            class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition">
+                            class="w-full px-3.5 py-2.5 bg-white border border-[var(--ink)]/15 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-[var(--moss)]/20 focus:border-[var(--moss)] transition">
                     </div>
                 </div>
 
-                <!-- 3. เลือกรอบเวลา (Slots Container สำหรับใส่ข้อมูลจาก Backend) -->
+                <!-- 3. เลือกรอบเวลา ( Slots Grid ) -->
                 <div>
-                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-2">
+                    <label class="block text-xs font-semibold text-[var(--ink-soft)] mb-2">
                         2. เลือกรอบเวลาที่สะดวก
                     </label>
 
-                    <!-- JS จะ Render กลุ่มวันและปุ่มเวลาลงใน Container นี้ -->
                     <div id="slotsContainer" class="space-y-4">
                         <div
-                            class="text-center py-6 text-xs text-slate-400 border border-dashed border-slate-200 rounded-xl">
-                            กรุณาเลือกบริการเพื่อดูรอบเวลาที่เปิดจอง
+                            class="text-center py-4 text-xs text-[var(--ink-soft)] border border-dashed border-[var(--ink)]/20 rounded-xl">
+                            กำลังโหลดรอบเวลาบริการ...
                         </div>
                     </div>
 
-                    <!-- Hidden input ไว้เก็บ slot_id ที่เลือก -->
                     <input type="hidden" id="slotId" name="slot_id" required>
                 </div>
 
                 <!-- ปุ่มยืนยัน -->
                 <button type="submit" id="submitBookingBtn" disabled
-                    class="w-full py-4 bg-blue-600 hover:bg-blue-700 disabled:bg-slate-200 disabled:text-slate-400 disabled:cursor-not-allowed text-white font-semibold rounded-xl shadow-lg shadow-blue-500/25 transition duration-200">
+                    class="w-full py-4 bg-[var(--moss)] hover:bg-[var(--moss-dark)] disabled:bg-[var(--ink)]/10 disabled:text-[var(--ink-soft)] disabled:cursor-not-allowed text-[var(--paper)] font-semibold rounded-full transition duration-200">
                     ยืนยันการจองคิว
                 </button>
             </form>
@@ -178,62 +351,61 @@
     </section>
 
     <!-- Location & Contact Section -->
-    <section id="contact" class="py-16 px-6 bg-slate-900 text-white">
+    <section id="contact" class="py-16 px-6 bg-[var(--ink)] text-[var(--paper)]">
         <div class="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-10 items-center">
             <div class="space-y-4">
-                <h2 class="text-2xl font-bold">📍 ที่ตั้งร้านและการติดต่อ</h2>
-                <p class="text-slate-400 text-sm leading-relaxed">
+                <h2 class="font-display text-2xl font-semibold">ที่ตั้งร้านและการติดต่อ</h2>
+                <p class="text-[var(--paper)]/60 text-sm leading-relaxed">
                     123/45 ถนนสุขุมวิท แขวงคลองเตย เขตคลองเตย กรุงเทพมหานคร 10110<br>
                     เปิดให้บริการทุกวัน: 10:00 น. - 20:00 น.
                 </p>
-                <div class="pt-2 text-sm text-slate-300 space-y-1">
-                    <p>📞 โทร: 02-123-4567</p>
-                    <p>💬 Line Official: @bookingstudio</p>
+                <div class="pt-2 text-sm text-[var(--paper)]/80 space-y-1">
+                    <p>โทร: 02-123-4567</p>
+                    <p>Line Official: @bookingstudio</p>
                 </div>
             </div>
-            <div class="bg-slate-800 p-6 rounded-2xl border border-slate-700 text-center">
-                <span class="text-slate-400 text-sm">🗺️ Google Maps Location (Simulated)</span>
+            <div class="bg-[var(--paper)]/5 p-6 rounded-2xl border border-[var(--paper)]/10 text-center">
+                <span class="text-[var(--paper)]/50 text-sm">Google Maps Location (Simulated)</span>
                 <div
-                    class="w-full h-40 bg-slate-700 rounded-xl mt-3 flex items-center justify-center text-slate-500 text-xs">
+                    class="w-full h-40 bg-[var(--paper)]/10 rounded-xl mt-3 flex items-center justify-center text-[var(--paper)]/40 text-xs">
                     [ Map View ]
                 </div>
             </div>
         </div>
     </section>
 
-    <footer class="py-6 text-center text-xs text-slate-400 bg-slate-950">
+    <footer class="py-6 text-center text-xs text-[var(--paper)]/40 bg-[var(--ink)] border-t border-[var(--paper)]/10">
         © 2026 BookingStudio. All rights reserved. (Portfolio Project)
     </footer>
 
     <!-- ปุ่มลอยมุมขวาล่าง -->
     <button type="button" onclick="openStatusModal()"
-        class="fixed bottom-6 right-6 z-40 flex items-center gap-2.5 px-4 py-3 bg-slate-900 hover:bg-slate-800 text-white rounded-full shadow-2xl hover:shadow-slate-900/40 border border-slate-700/50 transition-all duration-300 hover:scale-105 active:scale-95">
-        <span class="w-7 h-7 rounded-full bg-blue-600 flex items-center justify-center text-xs shadow-inner">🔍</span>
-        <span class="text-xs font-semibold pr-1">ตรวจสอบสถานะการจอง</span>
+        class="fixed bottom-6 right-6 z-40 flex items-center gap-2.5 pl-4 pr-5 py-3 bg-[var(--ink)] hover:bg-[var(--moss-dark)] text-[var(--paper)] rounded-full shadow-2xl border border-[var(--paper)]/10 transition-all duration-300 hover:scale-105 active:scale-95">
+        <span class="w-7 h-7 rounded-full border-2 border-dashed border-[var(--brass)] flex items-center justify-center text-[10px] font-bold text-[var(--brass)]">?</span>
+        <span class="text-xs font-semibold">ตรวจสอบสถานะการจอง</span>
     </button>
 
-    <!-- Modal ป๊อปอัพเช็กสถานะ (ลอยอยู่ด้านหน้า) -->
+    <!-- Modal ป๊อปอัพเช็กสถานะ -->
     <div id="statusModal"
-        class="fixed inset-0 z-50 hidden flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4 transition-all">
-        <div class="bg-white w-full max-w-md rounded-3xl p-6 shadow-2xl border border-slate-100 relative space-y-4">
+        class="fixed inset-0 z-50 hidden flex items-center justify-center bg-[var(--ink)]/60 backdrop-blur-sm p-4 transition-all">
+        <div class="bg-[var(--paper)] w-full max-w-md rounded-2xl p-6 shadow-2xl relative space-y-4">
 
             <!-- ปุ่มปิด modal -->
             <button onclick="closeStatusModal()"
-                class="absolute top-4 right-4 w-8 h-8 flex items-center justify-center text-slate-400 hover:text-slate-600 rounded-full hover:bg-slate-100 transition">
+                class="absolute top-4 right-4 w-8 h-8 flex items-center justify-center text-[var(--ink-soft)] hover:text-[var(--ink)] rounded-full hover:bg-[var(--bone)] transition">
                 ✕
             </button>
 
             <div class="text-center">
-                <h3 class="text-lg font-bold text-slate-900">🔍 ตรวจสอบสถานะการจอง</h3>
-                <!-- <p class="text-xs text-slate-500 mt-1">กรอกเบอร์โทรศัพท์ที่ใช้จอง</p> -->
+                <h3 class="font-display text-lg font-semibold text-[var(--ink)]">ตรวจสอบสถานะการจอง</h3>
             </div>
 
             <!-- ฟอร์มค้นหา -->
             <div class="flex gap-2">
                 <input type="text" id="searchInput" placeholder="กรอกเบอร์โทรศัพท์" maxlength="10"
-                    class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition">
+                    class="w-full px-3.5 py-2.5 bg-white border border-[var(--ink)]/15 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-[var(--moss)]/20 focus:border-[var(--moss)] transition">
                 <button onclick="checkBookingStatus()"
-                    class="px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-xl transition whitespace-nowrap">
+                    class="px-4 py-2.5 bg-[var(--moss)] hover:bg-[var(--moss-dark)] text-[var(--paper)] text-xs font-semibold rounded-xl transition whitespace-nowrap">
                     ค้นหา
                 </button>
             </div>
@@ -264,7 +436,7 @@
                     cardsContainer.innerHTML = '';
 
                     if (servicesList.length === 0) {
-                        cardsContainer.innerHTML = '<div class="col-span-full text-center text-slate-400 py-8">ยังไม่มีรายการบริการในขณะนี้</div>';
+                        cardsContainer.innerHTML = '<div class="col-span-full text-center text-[var(--ink-soft)] py-8">ยังไม่มีรายการบริการในขณะนี้</div>';
                         return;
                     }
 
@@ -272,14 +444,16 @@
                         select.innerHTML += `<option value="${s.id}">${s.service_name} • (฿${Number(s.price).toLocaleString()})</option>`;
 
                         cardsContainer.innerHTML += `
-            <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col justify-between hover:shadow-md transition">
+            <div class="bg-[var(--paper)] p-6 rounded-2xl border border-[var(--ink)]/10 flex flex-col justify-between hover:shadow-lg transition">
               <div>
-                <div class="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center text-xl mb-4">✂️</div>
-                <h3 class="font-bold text-slate-900 text-lg mb-1">${s.service_name}</h3>
-                <p class="text-xs text-slate-400 mb-4">ระยะเวลาให้บริการ ${s.duration_minutes} นาที</p>
-                <p class="text-2xl font-extrabold text-slate-900">฿${Number(s.price).toLocaleString()}</p>
+                <h3 class="font-display font-semibold text-[var(--ink)] text-lg mb-1">${s.service_name}</h3>
+                <p class="text-xs text-[var(--ink-soft)] mb-5">ระยะเวลาให้บริการ ${s.duration_minutes} นาที</p>
+                <div class="stub-line stub-card pt-4 flex items-baseline justify-between">
+                  <span class="text-[11px] text-[var(--ink-soft)]">ราคา</span>
+                  <p class="text-2xl font-bold text-[var(--brass)]">฿${Number(s.price).toLocaleString()}</p>
+                </div>
               </div>
-              <a href="#booking-form" onclick="selectService(${s.id})" class="mt-6 w-full py-2.5 bg-slate-50 hover:bg-blue-50 text-slate-700 hover:text-blue-600 border border-slate-200 rounded-xl text-center text-xs font-semibold transition">
+              <a href="#booking-form" onclick="selectService(${s.id})" class="mt-6 w-full py-2.5 bg-[var(--bone)] hover:bg-[var(--moss)] hover:text-[var(--paper)] text-[var(--ink)] rounded-full text-center text-xs font-semibold transition">
                 เลือกแพ็กเกจนี้
               </a>
             </div>
@@ -291,12 +465,12 @@
             } catch (err) {
                 console.error('fetchServices error:', err);
                 if (cardsContainer) {
-                    cardsContainer.innerHTML = '<div class="col-span-full text-center text-rose-500 py-8">ไม่สามารถโหลดข้อมูลบริการได้</div>';
+                    cardsContainer.innerHTML = '<div class="col-span-full text-center text-[var(--rose)] py-8">ไม่สามารถโหลดข้อมูลบริการได้</div>';
                 }
             }
         }
 
-        // 2. ดึง Slots มาแสดงเป็นปุ่มกด
+        // 2. ดึง Slots มาแสดงเป็นปุ่มกด (แยกตามวันที่)
         async function fetchCustomerSlots() {
             const container = document.getElementById('slotsContainer');
             try {
@@ -307,36 +481,58 @@
                 const isSuccess = result.success || result.status === 'success';
 
                 if (res.ok && isSuccess && slots.length > 0) {
+                    container.className = "grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3";
                     container.innerHTML = '';
+
                     slots.forEach(slot => {
-                        const start = new Date(slot.start_time).toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' });
-                        const end = new Date(slot.end_time).toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' });
+                        const startObj = new Date(slot.start_time);
+                        const endObj = new Date(slot.end_time);
+
+                        const dayName = startObj.toLocaleDateString('th-TH', { weekday: 'short' });
+                        const dateNum = startObj.getDate();
+                        const monthName = startObj.toLocaleDateString('th-TH', { month: 'short' });
+
+                        const startTime = startObj.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit', hour12: false });
+                        const endTime = endObj.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit', hour12: false });
                         const isFull = slot.capacity <= 0;
 
                         container.innerHTML += `
-            <button type="button" 
-              onclick="selectSlot('${slot.id}', this)"
-              ${isFull ? 'disabled' : ''}
-              class="slot-btn p-3.5 border rounded-xl text-left transition flex flex-col justify-between group
-                     ${isFull
-                                ? 'bg-slate-100 border-slate-200 opacity-50 cursor-not-allowed'
-                                : 'bg-slate-50 border-slate-200 hover:border-blue-500 hover:bg-blue-50/40'}"
-            >
-              <div class="flex items-center justify-between w-full mb-1">
-                <span class="font-bold text-slate-800 text-sm">${start} - ${end} น.</span>
-                <span class="text-[10px] px-2 py-0.5 rounded-full ${isFull ? 'bg-rose-100 text-rose-600' : 'bg-emerald-100 text-emerald-700'} font-semibold">
-                  ${isFull ? 'เต็มแล้ว' : `ว่าง ${slot.capacity} คิว`}
-                </span>
-              </div>
-            </button>
-          `;
+                    <button type="button" 
+                        onclick="selectSlot('${slot.id}', this)"
+                        data-slots="${slot.capacity}"
+                        ${isFull ? 'disabled' : ''}
+                        class="slot-btn relative p-3 border rounded-2xl text-center transition-all flex flex-col items-center justify-between gap-2 group
+                        ${isFull
+                                ? 'bg-[var(--ink)]/5 border-[var(--ink)]/10 opacity-50 cursor-not-allowed'
+                                : 'bg-white border-[var(--ink)]/10 hover:border-[var(--moss)] hover:shadow-md active:scale-95'}"
+                    >
+                        <!-- ส่วนวันที่ -->
+                        <div class="flex flex-col items-center leading-tight">
+                            <span class="text-[10px] font-medium text-[var(--ink-soft)]">${dayName}</span>
+                            <span class="font-display text-base font-bold text-[var(--ink)]">${dateNum} ${monthName}</span>
+                        </div>
+
+                        <!-- เส้นปรุคั่นวันที่กับเวลา -->
+                        <div class="stub-line stub-card w-full pt-2">
+                            <span class="text-xs font-bold text-[var(--ink)] block text-center">${startTime} - ${endTime}</span>
+                        </div>
+
+                        <!-- ส่วนสถานะคิว -->
+                        <span class="slot-count text-[10px] px-2.5 py-0.5 rounded-full font-bold ${isFull ? 'bg-[var(--rose)]/15 text-[var(--rose)]' : 'bg-[var(--moss)]/10 text-[var(--moss)]'}">
+                            ${isFull ? 'เต็มแล้ว' : `ว่าง ${slot.capacity} คิว`}
+                        </span>
+                    </button>
+                `;
                     });
+
                 } else {
-                    container.innerHTML = `<div class="col-span-full text-center py-6 text-xs text-slate-400">ยังไม่มีรอบเวลาเปิดให้จองในขณะนี้</div>`;
+                    container.className = "";
+                    container.innerHTML = `<div class="text-center py-6 text-xs text-[var(--ink-soft)]">ยังไม่มีรอบเวลาเปิดให้จองในขณะนี้</div>`;
                 }
             } catch (err) {
                 console.error('fetchCustomerSlots error:', err);
-                container.innerHTML = `<div class="col-span-full text-center py-6 text-xs text-rose-500">ไม่สามารถโหลดรอบเวลาได้</div>`;
+                container.className = "";
+                container.innerHTML = `<div class="text-center py-6 text-xs text-[var(--rose)]">ไม่สามารถโหลดรอบเวลาได้</div>`;
             }
         }
 
@@ -346,22 +542,63 @@
         }
 
         // เลือก Slot
+        let selectedBtnElement = null;
+
         function selectSlot(slotId, btnElement) {
+            const availableSlots = parseInt(btnElement.dataset.slots || btnElement.getAttribute('data-slots') || '1', 10);
+
+            if (availableSlots <= 0 || btnElement.classList.contains('opacity-50')) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'รอบเวลานี้เต็มแล้ว',
+                    text: 'กรุณาเลือกรอบเวลาอื่นที่ยังคงมีคิวว่างอยู่ครับ',
+                    confirmButtonColor: '#4B5D46',
+                    customClass: {
+                        popup: 'rounded-3xl p-6',
+                        confirmButton: 'px-5 py-2.5 rounded-xl text-xs font-semibold'
+                    }
+                });
+                return;
+            }
+
             selectedSlotId = slotId;
+            selectedBtnElement = btnElement;
             document.getElementById('slotId').value = slotId;
 
-            // รีเซ็ตสไตล์ปุ่มทั้งหมด
             document.querySelectorAll('.slot-btn').forEach(btn => {
-                btn.classList.remove('border-blue-600', 'bg-blue-50', 'ring-2', 'ring-blue-500/20');
-                btn.classList.add('bg-slate-50', 'border-slate-200');
+                btn.classList.remove('border-[var(--moss)]', 'bg-[var(--moss)]/5', 'ring-2', 'ring-[var(--moss)]/20');
+                btn.classList.add('bg-white', 'border-[var(--ink)]/10');
             });
 
-            // ไฮไลต์ปุ่มที่ถูกเลือก
-            btnElement.classList.remove('bg-slate-50', 'border-slate-200');
-            btnElement.classList.add('border-blue-600', 'bg-blue-50', 'ring-2', 'ring-blue-500/20');
+            btnElement.classList.remove('bg-white', 'border-[var(--ink)]/10');
+            btnElement.classList.add('border-[var(--moss)]', 'bg-[var(--moss)]/5', 'ring-2', 'ring-[var(--moss)]/20');
 
-            // เปิดใช้งานปุ่ม Submit
-            document.getElementById('submitBookingBtn').disabled = false;
+            const submitBtn = document.getElementById('submitBookingBtn');
+            if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+            }
+        }
+
+        // ฟังก์ชันช่วยลดจำนวนคิวบน UI ปุ่มที่เลือก (เรียกใช้ตอนจองสำเร็จ)
+        function updateSelectedSlotUI() {
+            if (!selectedBtnElement) return;
+
+            const countBadge = selectedBtnElement.querySelector('.slot-count') || selectedBtnElement;
+            const match = countBadge.innerText.match(/\d+/);
+
+            if (match) {
+                let currentCount = parseInt(match[0], 10);
+                if (currentCount > 0) {
+                    let newCount = currentCount - 1;
+                    countBadge.innerText = `ว่าง ${newCount} คิว`;
+
+                    if (newCount === 0) {
+                        selectedBtnElement.disabled = true;
+                        selectedBtnElement.classList.add('opacity-50', 'cursor-not-allowed');
+                    }
+                }
+            }
         }
 
         // 3. ยืนยันการจองคิว
@@ -373,10 +610,10 @@
             const customerName = document.getElementById('customerNameInput').value.trim();
             const phone = document.getElementById('phoneInput').value.trim();
 
-            if (!customerName) return showAlert('❌ กรุณากรอกชื่อเล่นของคุณ', 'error');
-            if (!phone) return showAlert('❌ กรุณากรอกเบอร์โทรศัพท์', 'error');
-            if (!serviceId) return showAlert('❌ กรุณาเลือกบริการก่อนครับ', 'error');
-            if (!slotId) return showAlert('❌ กรุณาเลือกรอบเวลาที่ต้องการ', 'error');
+            if (!customerName) return showAlert('กรุณากรอกชื่อเล่นของคุณ', 'error');
+            if (!phone) return showAlert('กรุณากรอกเบอร์โทรศัพท์', 'error');
+            if (!serviceId) return showAlert('กรุณาเลือกบริการก่อนครับ', 'error');
+            if (!slotId) return showAlert('กรุณาเลือกรอบเวลาที่ต้องการ', 'error');
 
             try {
                 const res = await fetch(`${API_URL}/bookings`, {
@@ -397,17 +634,18 @@
                     const bookingId = result.data ? result.data.id : 'N/A';
 
                     showSuccessAlert(bookingId);
+                    updateSelectedSlotUI();
 
                     document.getElementById('publicBookingForm').reset();
                     selectedSlotId = null;
                     document.getElementById('submitBookingBtn').disabled = true;
                     fetchCustomerSlots();
                 } else {
-                    showAlert('❌ ' + (result.message || 'เกิดข้อผิดพลาดในการจอง'), 'error');
+                    showAlert(result.message || 'เกิดข้อผิดพลาดในการจอง', 'error');
                 }
             } catch (err) {
                 console.error('Booking submission error:', err);
-                showAlert('❌ ไม่สามารถเชื่อมต่อกับ Server ได้', 'error');
+                showAlert('ไม่สามารถเชื่อมต่อกับ Server ได้', 'error');
             }
         });
 
@@ -416,34 +654,57 @@
             const box = document.getElementById('alertBox');
             box.classList.remove('hidden');
             box.className = `p-4 rounded-xl text-sm font-medium border text-center ${type === 'success'
-                ? 'bg-emerald-50 border-emerald-200 text-emerald-800'
-                : 'bg-rose-50 border-rose-200 text-rose-800'
+                ? 'bg-[var(--moss)]/10 border-[var(--moss)]/30 text-[var(--moss-dark)]'
+                : 'bg-[var(--rose)]/10 border-[var(--rose)]/30 text-[var(--rose)]'
                 }`;
             box.textContent = msg;
         }
 
         // แจ้งเตือนจองสำเร็จ (พร้อมปุ่มลิงก์เช็กสถานะ)
         function showSuccessAlert(bookingId) {
+            Swal.fire({
+                title: 'จองคิวสำเร็จแล้ว!',
+                html: `
+            <div class="space-y-3 pt-2">
+                <p class="text-sm text-slate-600">
+                    หมายเลขการจองของคุณคือ: 
+                    <span class="font-extrabold text-base" style="color:#B9915B">#BK-${bookingId}</span>
+                </p>
+                <p class="text-xs text-slate-400">
+                    ระบบได้บันทึกข้อมูลการจองเรียบร้อยแล้ว
+                </p>
+            </div>
+        `,
+                icon: 'success',
+                confirmButtonText: 'ตรวจสอบสถานะการจอง',
+                confirmButtonColor: '#4B5D46',
+                showCancelButton: true,
+                cancelButtonText: 'ปิด',
+                cancelButtonColor: '#94a3b8',
+                customClass: {
+                    popup: 'rounded-3xl p-6',
+                    confirmButton: 'px-5 py-2.5 rounded-xl text-xs font-semibold shadow-sm',
+                    cancelButton: 'px-5 py-2.5 rounded-xl text-xs font-semibold'
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    if (typeof openStatusModal === 'function') {
+                        openStatusModal();
+                    }
+
+                    const searchInput = document.getElementById('searchInput');
+                    if (searchInput) {
+                        searchInput.value = bookingId;
+                        if (typeof checkBookingStatus === 'function') {
+                            checkBookingStatus();
+                        }
+                    }
+                }
+            });
+
             const box = document.getElementById('alertBox');
-            box.classList.remove('hidden');
-            box.className = 'p-5 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-900 text-center space-y-3';
-
-            box.innerHTML = `
-            <div>
-                <p class="font-bold text-base">🎉 จองคิวสำเร็จแล้ว!</p>
-                <p class="text-xs text-emerald-700 mt-1">หมายเลขการจองของคุณคือ: <span class="font-extrabold text-sm underline">#BK-${bookingId}</span></p>
-            </div>
-            <div class="pt-1">
-                <a href="/check-status.html?id=${bookingId}" class="inline-block px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs rounded-xl shadow-sm transition">
-                    🔍 ตรวจสอบสถานะการจองคิวนี้
-                </a>
-            </div>
-        `;
-
-            // อัปเดตลิงก์ที่ปุ่มลอยมุมขวาล่างให้แนบ ID การจองไปด้วยทันที
-            const floatBtn = document.querySelector('a[href^="/check-status.html"]');
-            if (floatBtn) {
-                floatBtn.href = `/check-status.html?id=${bookingId}`;
+            if (box) {
+                box.classList.add('hidden');
             }
         }
 
@@ -451,7 +712,7 @@
         fetchServices();
         fetchCustomerSlots();
 
-        // เปิด-ปิด Modal
+        // เปิด-ปิด status Modal
         function openStatusModal(bookingId = '') {
             const modal = document.getElementById('statusModal');
             modal.classList.remove('hidden');
@@ -464,10 +725,10 @@
 
         function closeStatusModal() {
             document.getElementById('statusModal').classList.add('hidden');
+            document.getElementById('searchInput').value = '';
             document.getElementById('modalStatusResult').classList.add('hidden');
         }
 
-        // ค้นหาและแสดงผลสถานะ
         // ค้นหาและแสดงผลสถานะแบบละเอียด
         async function checkBookingStatus() {
             const query = document.getElementById('searchInput').value.trim();
@@ -476,7 +737,7 @@
             if (!query) return;
 
             resultBox.classList.remove('hidden');
-            resultBox.className = 'p-4 rounded-2xl bg-slate-50 border border-slate-200 text-center text-slate-500';
+            resultBox.className = 'p-4 rounded-2xl bg-[var(--bone)] text-center text-[var(--ink-soft)]';
             resultBox.innerHTML = 'กำลังค้นหาข้อมูล...';
 
             try {
@@ -484,21 +745,20 @@
                 const result = await res.json();
                 const list = result.data || result;
 
-                // ค้นหาการจองจาก ID หรือ เบอร์โทรศัพท์
                 const item = list.find(b => String(b.id) === query || b.phone === query);
 
                 if (item) {
-                    // 1. จัดการ Badge แสดงสถานะ
+                    // 1. Badge สถานะ
                     let statusBadge = '';
                     if (item.status === 'confirmed') {
-                        statusBadge = '<span class="bg-emerald-100 text-emerald-700 px-2.5 py-1 rounded-full text-[11px] font-bold inline-flex items-center gap-1">พ ยืนยันแล้ว</span>';
+                        statusBadge = '<span class="bg-[var(--moss)]/10 text-[var(--moss-dark)] px-2.5 py-1 rounded-full text-[11px] font-bold">ยืนยันแล้ว</span>';
                     } else if (item.status === 'cancelled') {
-                        statusBadge = '<span class="bg-rose-100 text-rose-700 px-2.5 py-1 rounded-full text-[11px] font-bold inline-flex items-center gap-1">❌ ยกเลิกแล้ว</span>';
+                        statusBadge = '<span class="bg-[var(--rose)]/15 text-[var(--rose)] px-2.5 py-1 rounded-full text-[11px] font-bold">ยกเลิกแล้ว</span>';
                     } else {
-                        statusBadge = '<span class="bg-amber-100 text-amber-700 px-2.5 py-1 rounded-full text-[11px] font-bold inline-flex items-center gap-1">⏳ รอยืนยัน</span>';
+                        statusBadge = '<span class="bg-[var(--brass)]/15 text-[var(--brass)] px-2.5 py-1 rounded-full text-[11px] font-bold">รอยืนยัน</span>';
                     }
 
-                    // 2. แปลงเวลาของ Slot (ถ้ามีข้อมูล slots แนบมาด้วย)
+                    // 2. เวลาของ Slot
                     let slotTimeString = 'ไม่ระบุรอบเวลา';
                     if (item.slots || item.slot) {
                         const slotData = item.slots || item.slot;
@@ -513,73 +773,249 @@
                         slotTimeString = `Slot ID: ${item.slot_id}`;
                     }
 
-                    // 3. ชื่อบริการและราคา (ถ้ามีข้อมูล services แนบมาด้วย)
+                    // 3. ชื่อบริการและราคา
                     const serviceName = item.services?.service_name || item.service?.service_name || (item.service_id ? `บริการรหัส #${item.service_id}` : 'บริการทั่วไป');
                     const servicePrice = item.services?.price || item.service?.price ? `฿${Number(item.services?.price || item.service?.price).toLocaleString()}` : '';
 
-                    // 4. แสดงผล HTML การ์ดข้อมูลแบบละเอียด
-                    resultBox.className = 'p-4 rounded-2xl bg-white border border-slate-200/80 shadow-sm text-left space-y-3';
+                    // 4. การ์ดข้อมูลแบบละเอียด (สไตล์บัตรคิว)
+                    resultBox.className = 'relative p-4 rounded-2xl bg-white border border-[var(--ink)]/10 shadow-sm text-left space-y-3';
                     resultBox.innerHTML = `
-                <!-- หัวการ์ด: ID และ สถานะ -->
-                <div class="flex justify-between items-center border-b border-slate-100 pb-2.5">
+                <div class="flex justify-between items-center stub-line stub-card pb-2.5" style="border-top:none">
                     <div>
-                        <span class="text-[10px] text-slate-400 font-bold tracking-wider uppercase block">หมายเลขการจอง</span>
-                        <span class="font-extrabold text-slate-800 text-sm">#BK-${item.id}</span>
+                        <span class="text-[10px] text-[var(--ink-soft)] font-bold block">หมายเลขการจอง</span>
+                        <span class="font-display font-bold text-[var(--ink)] text-sm">#BK-${item.id}</span>
                     </div>
                     ${statusBadge}
                 </div>
 
-                <!-- รายละเอียดผู้จอง -->
-                <div class="grid grid-cols-2 gap-2 text-xs bg-slate-50 p-2.5 rounded-xl border border-slate-100">
+                <div class="grid grid-cols-2 gap-2 text-xs bg-[var(--bone)] p-2.5 rounded-xl">
                     <div>
-                        <span class="text-slate-400 block text-[10px]">ชื่อผู้จอง</span>
-                        <span class="font-semibold text-slate-800">👤 ${item.customer_name}</span>
+                        <span class="text-[var(--ink-soft)] block text-[10px]">ชื่อผู้จอง</span>
+                        <span class="font-semibold text-[var(--ink)]">${item.customer_name}</span>
                     </div>
                     <div>
-                        <span class="text-slate-400 block text-[10px]">เบอร์โทรศัพท์</span>
-                        <span class="font-semibold text-slate-800">📞 ${item.phone}</span>
+                        <span class="text-[var(--ink-soft)] block text-[10px]">เบอร์โทรศัพท์</span>
+                        <span class="font-semibold text-[var(--ink)]">${item.phone}</span>
                     </div>
                 </div>
 
-                <!-- รายละเอียดบริการและรอบเวลา -->
                 <div class="space-y-2 text-xs pt-1">
                     <div class="flex justify-between items-start">
                         <div>
-                            <span class="text-slate-400 block text-[10px]">บริการที่เลือก</span>
-                            <span class="font-bold text-slate-900 text-sm">✂️ ${serviceName}</span>
+                            <span class="text-[var(--ink-soft)] block text-[10px]">บริการที่เลือก</span>
+                            <span class="font-bold text-[var(--ink)] text-sm">${serviceName}</span>
                         </div>
-                        ${servicePrice ? `<span class="font-extrabold text-blue-600 text-sm bg-blue-50 px-2 py-0.5 rounded-lg border border-blue-100">${servicePrice}</span>` : ''}
+                        ${servicePrice ? `<span class="font-extrabold text-[var(--brass)] text-sm bg-[var(--brass)]/10 px-2 py-0.5 rounded-lg">${servicePrice}</span>` : ''}
                     </div>
 
-                    <div class="bg-blue-50/60 border border-blue-100 p-2.5 rounded-xl flex items-center justify-between">
-                        <div class="flex items-center gap-2">
-                            <span class="text-base">🗓️</span>
-                            <div>
-                                <span class="text-blue-600/70 block text-[10px] font-semibold">รอบเวลาที่จอง</span>
-                                <span class="font-bold text-slate-800">${slotTimeString}</span>
-                            </div>
+                    <div class="bg-[var(--moss)]/5 p-2.5 rounded-xl flex items-center justify-between">
+                        <div>
+                            <span class="text-[var(--moss-dark)] block text-[10px] font-semibold">รอบเวลาที่จอง</span>
+                            <span class="font-bold text-[var(--ink)]">${slotTimeString}</span>
                         </div>
                     </div>
                 </div>
             `;
                 } else {
-                    resultBox.className = 'p-4 rounded-2xl bg-rose-50 border border-rose-200 text-center text-rose-600 font-medium text-xs';
-                    resultBox.innerHTML = '❌ ไม่พบข้อมูลการจองนี้ กรุณาตรวจสอบ ID หรือ เบอร์โทรศัพท์';
+                    resultBox.className = 'p-4 rounded-2xl bg-[var(--rose)]/10 text-center text-[var(--rose)] font-medium text-xs';
+                    resultBox.innerHTML = 'ไม่พบข้อมูลการจองนี้ กรุณาตรวจสอบ ID หรือ เบอร์โทรศัพท์';
                 }
             } catch (err) {
                 console.error('checkBookingStatus error:', err);
-                resultBox.className = 'p-4 rounded-2xl bg-rose-50 border border-rose-200 text-center text-rose-600 font-medium text-xs';
-                resultBox.innerHTML = '❌ เกิดข้อผิดพลาดในการดึงข้อมูลการจอง';
+                resultBox.className = 'p-4 rounded-2xl bg-[var(--rose)]/10 text-center text-[var(--rose)] font-medium text-xs';
+                resultBox.innerHTML = 'เกิดข้อผิดพลาดในการดึงข้อมูลการจอง';
             }
         }
 
         document.getElementById('searchInput').addEventListener('keypress', function (e) {
             if (e.key === 'Enter') {
-                e.preventDefault(); // ป้องกันหน้าเว็บ Refresh (ถ้าอยู่ใน form)
+                e.preventDefault();
                 checkBookingStatus();
             }
         });
 
+        // ดึงข้อมูลรีวิวจาก API มาแสดง
+        async function fetchReviews() {
+            const container = document.getElementById('reviewsContainer');
+            try {
+                const res = await fetch(`${API_URL}/reviews`);
+                const result = await res.json();
+                const reviews = result.data || [];
+
+                if (res.ok && reviews.length > 0) {
+                    const createCardHTML = (item) => {
+                        const stars = '★'.repeat(item.rating) + '☆'.repeat(5 - item.rating);
+                        const serviceName = item.services?.service_name || item.service_name || '';
+
+                        let extractedTags = [];
+                        let cleanComment = item.comment || '';
+
+                        if (Array.isArray(item.tags) && item.tags.length > 0) {
+                            extractedTags = item.tags;
+                        } else if (cleanComment) {
+                            const tagRegex = /\[(.*?)\]/g;
+                            let match;
+                            while ((match = tagRegex.exec(cleanComment)) !== null) {
+                                extractedTags.push(match[1]);
+                            }
+                            cleanComment = cleanComment.replace(tagRegex, '').trim();
+                        }
+
+                        const tagsHTML = extractedTags.length > 0
+                            ? `<div class="flex flex-wrap gap-1.5 pt-0.5">
+                        ${extractedTags.map(tag => `<span class="text-[10px] bg-white/10 text-[var(--paper)]/80 px-2 py-0.5 rounded-md font-medium">${tag}</span>`).join('')}
+                       </div>`
+                            : '';
+
+                        return `
+                    <div class="w-[300px] md:w-[350px] shrink-0 bg-[var(--paper)] text-[var(--ink)] p-5 rounded-2xl shadow-sm flex flex-col justify-between space-y-3">
+                        <div class="space-y-2.5">
+                            <div class="flex items-center justify-between gap-2">
+                                <div class="text-[var(--rose)] text-xs tracking-wider">${stars}</div>
+                                ${serviceName ? `<span class="text-[10px] font-medium bg-[var(--moss)]/10 text-[var(--moss-dark)] px-2 py-0.5 rounded-md">${serviceName}</span>` : ''}
+                            </div>
+                            ${cleanComment ? `<p class="text-[var(--ink-soft)] text-xs leading-relaxed line-clamp-3">"${cleanComment}"</p>` : ''}
+                        </div>
+                        <div class="stub-line stub-card pt-2.5">
+                          ${tagsHTML}
+                          <div class="font-semibold text-[11px] text-[var(--ink)] pt-2">— คุณ${item.name}</div>
+                        </div>
+                    </div>
+                `;
+                    };
+
+                    const originalCardsHTML = reviews.map(item => createCardHTML(item)).join('');
+
+                    if (reviews.length < 4) {
+                        container.className = "flex gap-6 py-2 justify-center";
+                        container.innerHTML = originalCardsHTML;
+                    } else {
+                        container.className = "flex gap-6 animate-marquee py-2";
+                        container.innerHTML = originalCardsHTML + originalCardsHTML;
+                    }
+
+                } else {
+                    container.className = "flex justify-center w-full";
+                    container.innerHTML = `<div class="text-center py-8 text-xs text-[var(--paper)]/50">ยังไม่มีรีวิวในขณะนี้</div>`;
+                }
+            } catch (err) {
+                console.error('fetchReviews error:', err);
+                container.className = "flex justify-center w-full";
+                container.innerHTML = `<div class="text-center py-8 text-xs text-[var(--rose)]">ไม่สามารถโหลดข้อมูลรีวิวได้</div>`;
+            }
+        }
+
+        // ดึงรายชื่อ Services มาใส่ใน Dropdown ของฟอร์มรีวิว
+        async function fetchServicesOptions() {
+            const selectEl = document.getElementById('reviewService');
+            try {
+                const res = await fetch(`${API_URL}/services`);
+                const result = await res.json();
+                const services = result.data || [];
+
+                if (res.ok && services.length > 0) {
+                    selectEl.innerHTML = '<option value="" disabled selected>-- เลือกแพ็กเกจที่ใช้บริการ --</option>';
+                    services.forEach(service => {
+                        selectEl.innerHTML += `
+                    <option value="${service.id}">
+                        ${service.service_name} (${service.duration_minutes} นาที) - ${parseFloat(service.price).toLocaleString()} บาท
+                    </option>
+                `;
+                    });
+                } else {
+                    selectEl.innerHTML = '<option value="" disabled selected>ไม่พบรายการแพ็กเกจ</option>';
+                }
+            } catch (err) {
+                console.error('fetchServicesOptions error:', err);
+                selectEl.innerHTML = '<option value="" disabled selected>โหลดข้อมูลแพ็กเกจไม่สำเร็จ</option>';
+            }
+        }
+
+        // เปิด Modal รีวิว
+        function openReviewModal() {
+            document.getElementById('reviewModal').classList.remove('hidden');
+            fetchServicesOptions();
+        }
+
+        // ปิด Modal รีวิว + เคลียร์ state
+        function closeReviewModal() {
+            document.getElementById('reviewModal').classList.add('hidden');
+            document.getElementById('reviewForm').reset();
+            selectedTags = [];
+            document.querySelectorAll('.tag-btn').forEach(btn => {
+                btn.classList.remove('bg-[var(--moss)]/10', 'text-[var(--moss-dark)]', 'border-[var(--moss)]/40', 'font-semibold');
+                btn.classList.add('bg-[var(--bone)]', 'text-[var(--ink-soft)]', 'border-transparent');
+            });
+        }
+
+        let selectedTags = [];
+
+        // เลือก/ยกเลิก Tag
+        function toggleTag(btnElement, tagValue) {
+            const index = selectedTags.indexOf(tagValue);
+
+            if (index === -1) {
+                selectedTags.push(tagValue);
+                btnElement.classList.remove('bg-[var(--bone)]', 'text-[var(--ink-soft)]', 'border-transparent');
+                btnElement.classList.add('bg-[var(--moss)]/10', 'text-[var(--moss-dark)]', 'border-[var(--moss)]/40', 'font-semibold');
+            } else {
+                selectedTags.splice(index, 1);
+                btnElement.classList.remove('bg-[var(--moss)]/10', 'text-[var(--moss-dark)]', 'border-[var(--moss)]/40', 'font-semibold');
+                btnElement.classList.add('bg-[var(--bone)]', 'text-[var(--ink-soft)]', 'border-transparent');
+            }
+        }
+
+        // รวม Tags และ Comment ก่อนส่งไปหลังบ้าน แล้วส่งรีวิว
+        async function submitReview(e) {
+            e.preventDefault();
+            const name = document.getElementById('reviewerName').value;
+            const serviceId = document.getElementById('reviewService').value;
+            const rating = parseInt(document.getElementById('reviewRating').value);
+            const customComment = document.getElementById('reviewComment').value.trim();
+
+            if (selectedTags.length === 0 && !customComment) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'กรุณาใส่ข้อมูล',
+                    text: 'เลือกจุดที่ประทับใจอย่างน้อย 1 ข้อ หรือพิมพ์ความคิดเห็นเพิ่มเติม',
+                    confirmButtonColor: '#4B5D46'
+                });
+                return;
+            }
+
+            const formattedTags = selectedTags.map(t => `[${t}]`).join(' ');
+            const finalComment = formattedTags ? `${formattedTags} ${customComment}`.trim() : customComment;
+
+            try {
+                const res = await fetch(`${API_URL}/reviews`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        name,
+                        service_id: serviceId,
+                        rating,
+                        comment: finalComment
+                    })
+                });
+
+                if (res.ok) {
+                    closeReviewModal();
+                    fetchReviews();
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'ขอบคุณสำหรับรีวิวครับ!',
+                        text: 'ความคิดเห็นของคุณถูกบันทึกเรียบร้อยแล้ว',
+                        confirmButtonColor: '#4B5D46',
+                        customClass: { popup: 'rounded-2xl', confirmButton: 'rounded-xl text-xs px-5 py-2.5 font-semibold' }
+                    });
+                }
+            } catch (err) {
+                console.error('submitReview error:', err);
+            }
+        }
+
+        // เรียกใช้งานเมื่อโหลดหน้าเว็บ
+        document.addEventListener('DOMContentLoaded', fetchReviews);
     </script>
 </body>
 

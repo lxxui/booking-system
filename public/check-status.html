@@ -5,18 +5,80 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ตรวจสอบสถานะการจอง</title>
   <script src="https://cdn.tailwindcss.com"></script>
-</head>
-<body class="bg-slate-50 min-h-screen flex items-center justify-center p-4">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Noto+Serif+Thai:wght@500;600;700&family=IBM+Plex+Sans+Thai:wght@400;500;600;700&display=swap"
+    rel="stylesheet">
+  <style>
+    :root {
+      --ink: #171512;
+      --ink-soft: #57534A;
+      --bone: #EFE9DD;
+      --paper: #FBF8F2;
+      --moss: #4B5D46;
+      --moss-dark: #3B4A38;
+      --brass: #B9915B;
+      --rose: #C97B6C;
+    }
 
-  <div class="max-w-md w-full bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
-    <h1 class="text-xl font-bold text-slate-800 text-center mb-1">🔍 ตรวจสอบสถานะการจอง</h1>
-    <p class="text-xs text-slate-500 text-center mb-6">กรอกหมายเลขการจอง หรือ เบอร์โทรศัพท์ที่ใช้จองคิว</p>
+    body {
+      font-family: 'IBM Plex Sans Thai', sans-serif;
+      background-color: var(--bone);
+      color: var(--ink);
+    }
+
+    .font-display {
+      font-family: 'Noto Serif Thai', serif;
+    }
+
+    .stub-line {
+      position: relative;
+      border-top: 2px dashed rgba(23, 21, 18, 0.15);
+    }
+
+    .stub-line::before,
+    .stub-line::after {
+      content: "";
+      position: absolute;
+      top: -9px;
+      width: 18px;
+      height: 18px;
+      border-radius: 999px;
+      background: var(--bone);
+    }
+
+    .stub-line::before { left: -9px; }
+    .stub-line::after { right: -9px; }
+
+    .ticket-notch-left,
+    .ticket-notch-right {
+      position: absolute;
+      width: 22px;
+      height: 22px;
+      border-radius: 999px;
+      background: var(--bone);
+      top: 50%;
+      transform: translateY(-50%);
+      z-index: 10;
+    }
+
+    .ticket-notch-left { left: -11px; }
+    .ticket-notch-right { right: -11px; }
+  </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4 antialiased">
+
+  <div class="relative max-w-md w-full bg-[var(--paper)] rounded-2xl shadow-xl p-6">
+    <span class="ticket-notch-left"></span>
+    <span class="ticket-notch-right"></span>
+
+    <h1 class="font-display text-xl font-semibold text-[var(--ink)] text-center mb-1">ตรวจสอบสถานะการจอง</h1>
+    <p class="text-xs text-[var(--ink-soft)] text-center mb-6">กรอกหมายเลขการจอง หรือ เบอร์โทรศัพท์ที่ใช้จองคิว</p>
 
     <!-- ช่องค้นหา -->
     <div class="flex gap-2 mb-6">
       <input type="text" id="searchInput" placeholder="ระบุเบอร์โทรศัพท์"  maxlength="10"
-             class="w-full px-4 py-2.5 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-      <button onclick="checkStatus()" class="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-semibold transition shrink-0">
+             class="w-full px-4 py-2.5 border border-[var(--ink)]/15 bg-white rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[var(--moss)]/30 focus:border-[var(--moss)]">
+      <button onclick="checkStatus()" class="px-5 py-2.5 bg-[var(--moss)] hover:bg-[var(--moss-dark)] text-[var(--paper)] rounded-full text-sm font-semibold transition shrink-0">
         ค้นหา
       </button>
     </div>
@@ -32,7 +94,7 @@
 
       if (!query) return alert('กรุณากรอกข้อมูลค้นหา');
 
-      container.innerHTML = `<p class="text-center text-sm text-slate-400 py-4">กำลังค้นหา...</p>`;
+      container.innerHTML = `<p class="text-center text-sm text-[var(--ink-soft)] py-4">กำลังค้นหา...</p>`;
 
       try {
         const res = await fetch(`/api/bookings/search?query=${query}`);
@@ -45,39 +107,46 @@
             const serviceName = item.services?.service_name || 'ไม่ระบุบริการ';
             
             container.innerHTML += `
-              <div class="p-4 border border-slate-200 rounded-xl bg-slate-50/50 space-y-2">
-                <div class="flex justify-between items-center">
-                  <span class="font-bold text-slate-900 text-sm">#BK-${item.id}</span>
+              <div class="p-4 border border-[var(--ink)]/10 rounded-xl bg-white space-y-2.5">
+                <div class="flex justify-between items-center stub-line pb-2.5" style="border-top:none">
+                  <span class="font-display font-bold text-[var(--ink)] text-sm">#BK-${item.id}</span>
                   ${getStatusBadge(item.status)}
                 </div>
                 
-                <p class="text-xs text-slate-600"><strong>บริการ:</strong> ${serviceName}</p>
+                <p class="text-xs text-[var(--ink-soft)]"><span class="font-semibold text-[var(--ink)]">บริการ:</span> ${serviceName}</p>
 
                 <!-- แสดงเหตุผลถ้าถูกยกเลิก -->
                 ${isCancelled ? `
-                  <div class="mt-2 p-2.5 bg-rose-50 border border-rose-200 rounded-lg text-xs text-rose-700">
-                    <strong>เหตุผลการยกเลิก:</strong> ${item.cancel_reason || 'ไม่ได้ระบุเหตุผล'}
+                  <div class="mt-2 p-2.5 bg-[var(--rose)]/10 border border-[var(--rose)]/25 rounded-lg text-xs text-[var(--rose)]">
+                    <span class="font-semibold">เหตุผลการยกเลิก:</span> ${item.cancel_reason || 'ไม่ได้ระบุเหตุผล'}
                   </div>
                 ` : ''}
               </div>
             `;
           });
         } else {
-          container.innerHTML = `<p class="text-center text-sm text-slate-400 py-4">ไม่พบข้อมูลการจอง</p>`;
+          container.innerHTML = `<p class="text-center text-sm text-[var(--ink-soft)] py-4">ไม่พบข้อมูลการจอง</p>`;
         }
       } catch (err) {
-        container.innerHTML = `<p class="text-center text-sm text-rose-500 py-4">เกิดข้อผิดพลาดในการเชื่อมต่อ</p>`;
+        container.innerHTML = `<p class="text-center text-sm text-[var(--rose)] py-4">เกิดข้อผิดพลาดในการเชื่อมต่อ</p>`;
       }
     }
 
     function getStatusBadge(status) {
       if (status === 'confirmed') {
-        return `<span class="px-2.5 py-1 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-full text-xs font-semibold">อนุมัติแล้ว</span>`;
+        return `<span class="px-2.5 py-1 bg-[var(--moss)]/10 text-[var(--moss-dark)] border border-[var(--moss)]/30 rounded-full text-xs font-semibold">อนุมัติแล้ว</span>`;
       } else if (status === 'cancelled') {
-        return `<span class="px-2.5 py-1 bg-rose-50 text-rose-700 border border-rose-200 rounded-full text-xs font-semibold">ยกเลิกแล้ว</span>`;
+        return `<span class="px-2.5 py-1 bg-[var(--rose)]/10 text-[var(--rose)] border border-[var(--rose)]/30 rounded-full text-xs font-semibold">ยกเลิกแล้ว</span>`;
       }
-      return `<span class="px-2.5 py-1 bg-amber-50 text-amber-700 border border-amber-200 rounded-full text-xs font-semibold">รอดำเนินการ</span>`;
+      return `<span class="px-2.5 py-1 bg-[var(--brass)]/10 text-[var(--brass)] border border-[var(--brass)]/30 rounded-full text-xs font-semibold">รอดำเนินการ</span>`;
     }
+
+    document.getElementById('searchInput').addEventListener('keypress', function (e) {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        checkStatus();
+      }
+    });
   </script>
 </body>
 </html>

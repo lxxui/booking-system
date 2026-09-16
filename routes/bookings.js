@@ -7,7 +7,11 @@ router.get('/', async (req, res) => {
     try {
         const { data, error } = await supabase
             .from('bookings')
-            .select('*, services(service_name, price)')
+            .select(`
+                *,
+                services (*),
+                slots (*)
+            `)
             .order('id', { ascending: false });
 
         if (error) throw error;
@@ -19,8 +23,31 @@ router.get('/', async (req, res) => {
     }
 });
 
+// 2. ดึงข้อมูลการจองด้วย Booking ID หรือ เบอร์โทร (GET /api/bookings/search)
+router.get('/search', async (req, res) => {
+    try {
+        const { query } = req.query; // รับค่า phone หรือ booking_id
 
-// 2. สร้างรายการจองใหม่ (POST /api/bookings)
+        if (!query) {
+            return res.status(400).json({ status: 'error', message: 'กรุณาระบุหมายเลขการจองหรือเบอร์โทรศัพท์' });
+        }
+
+        // ค้นหาจาก ID หรือ Phone
+        const { data, error } = await supabase
+            .from('bookings')
+            .select('*, services(service_name, price), slots(start_time, end_time)')
+            .or(`id.eq.${isNaN(query) ? 0 : query},phone.eq.${query}`)
+            .order('id', { ascending: false });
+
+        if (error) throw error;
+
+        res.json({ status: 'success', data });
+    } catch (err) {
+        res.status(500).json({ status: 'error', message: err.message });
+    }
+});
+
+// 3. สร้างรายการจองใหม่ และตัด Slot ทันที (POST /api/bookings)
 router.post('/', async (req, res) => {
     try {
         const { service_id, slot_id, customer_name, phone, status } = req.body;
@@ -32,7 +59,23 @@ router.post('/', async (req, res) => {
             });
         }
 
-        // บันทึกการจอง
+        // 3.1 ตรวจสอบความพร้อมของ Slot ก่อนทำการจอง
+        const { data: slot, error: slotErr } = await supabase
+            .from('slots')
+            .select('capacity')
+            .eq('id', slot_id)
+            .single();
+
+        if (slotErr || !slot) {
+            return res.status(404).json({ status: 'error', message: 'ไม่พบรอบเวลาที่เลือก' });
+        }
+
+        if (slot.capacity <= 0) {
+            return res.status(400).json({ status: 'error', message: 'รอบเวลานี้เต็มแล้ว ไม่สามารถจองเพิ่มได้' });
+        }
+
+        // 3.2 บันทึกการจองลงตาราง bookings
+        const bookingStatus = status || 'confirmed'; // หรือใส่เป็น 'pending' ตาม Logic ร้าน
         const { data, error } = await supabase
             .from('bookings')
             .insert([{
@@ -40,11 +83,21 @@ router.post('/', async (req, res) => {
                 slot_id,
                 customer_name,
                 phone,
-                status: status || 'pending'
+                status: bookingStatus
             }])
             .select();
 
         if (error) throw error;
+
+        // 3.3 ลดจำนวน capacity ในตาราง slots ลง 1 ทันที
+        const { error: updateSlotErr } = await supabase
+            .from('slots')
+            .update({ capacity: slot.capacity - 1 })
+            .eq('id', slot_id);
+
+        if (updateSlotErr) {
+            console.error('Update Slot Capacity Error:', updateSlotErr);
+        }
 
         res.status(201).json({
             status: 'success',
@@ -56,7 +109,7 @@ router.post('/', async (req, res) => {
     }
 });
 
-// 3. อัปเดตสถานะการจอง (PATCH /api/bookings/:id/status)
+// 4. อัปเดตสถานะการจอง (PATCH /api/bookings/:id/status)
 router.patch('/:id/status', async (req, res) => {
     try {
         const { id } = req.params;
@@ -66,7 +119,7 @@ router.patch('/:id/status', async (req, res) => {
             return res.status(400).json({ status: 'error', message: 'กรุณาระบุ status ที่ต้องการเปลี่ยน' });
         }
 
-        // 1. ดึงข้อมูลการจองปัจจุบันเพื่อตรวจสอบสถานะเดิม
+        // 4.1 ดึงข้อมูลการจองปัจจุบันเพื่อตรวจสอบสถานะเดิม
         const { data: currentBooking, error: fetchErr } = await supabase
             .from('bookings')
             .select('slot_id, status')
@@ -89,7 +142,7 @@ router.patch('/:id/status', async (req, res) => {
             });
         }
 
-        // 2. อัปเดตสถานะในตาราง bookings
+        // 4.2 อัปเดตสถานะในตาราง bookings
         const { data, error } = await supabase
             .from('bookings')
             .update({ status: newStatus })
@@ -98,7 +151,7 @@ router.patch('/:id/status', async (req, res) => {
 
         if (error) throw error;
 
-        // 3. ปรับ capacity ตามเงื่อนไขสถานะที่เปลี่ยนจริงเท่านั้น
+        // 4.3 ปรับคืนค่า capacity หากมีการยกเลิกคิว (cancelled)
         const { data: slot } = await supabase
             .from('slots')
             .select('capacity')
@@ -106,8 +159,15 @@ router.patch('/:id/status', async (req, res) => {
             .single();
 
         if (slot) {
-            // Case A: รับคิว (pending/cancelled -> confirmed) : ลด capacity ลง 1
-            if (newStatus === 'confirmed' && oldStatus !== 'confirmed') {
+            // หากยกเลิกรายการจองที่เคยจองไว้ -> คืนคิวเพิ่ม capacity + 1
+            if (newStatus === 'cancelled' && oldStatus !== 'cancelled') {
+                await supabase
+                    .from('slots')
+                    .update({ capacity: slot.capacity + 1 })
+                    .eq('id', slotId);
+            }
+            // หากเปลี่ยนจากยกเลิก กลับมาใช้งานต่อ -> ลด capacity - 1
+            else if (oldStatus === 'cancelled' && newStatus !== 'cancelled') {
                 if (slot.capacity > 0) {
                     await supabase
                         .from('slots')
@@ -115,14 +175,6 @@ router.patch('/:id/status', async (req, res) => {
                         .eq('id', slotId);
                 }
             }
-            // Case B: ยกเลิกคิวที่เคยอนุมัติแล้ว (confirmed -> cancelled) : คืน capacity เพิ่ม 1
-            else if (newStatus === 'cancelled' && oldStatus === 'confirmed') {
-                await supabase
-                    .from('slots')
-                    .update({ capacity: slot.capacity + 1 })
-                    .eq('id', slotId);
-            }
-            // Note: หากเป็นการยกเลิกรายการที่ยังเป็น pending อยู่ จะไม่เพิ่ม capacity เพิ่มขึ้นมามั่วๆ
         }
 
         res.json({
@@ -135,53 +187,5 @@ router.patch('/:id/status', async (req, res) => {
         res.status(500).json({ status: 'error', message: err.message });
     }
 });
-
-// ดึงข้อมูลการจองด้วย Booking ID หรือ เบอร์โทร
-router.get('/search', async (req, res) => {
-    try {
-        const { query } = req.query; // รับค่า phone หรือ booking_id
-
-        if (!query) {
-            return res.status(400).json({ status: 'error', message: 'กรุณาระบุหมายเลขการจองหรือเบอร์โทรศัพท์' });
-        }
-
-        // ค้นหาจาก ID หรือ Phone (ถ้ามีคอลัมน์ phone)
-        const { data, error } = await supabase
-            .from('bookings')
-            .select('*, services(service_name, price), slots(start_time, end_time)')
-            .or(`id.eq.${isNaN(query) ? 0 : query},phone.eq.${query}`)
-            .order('id', { ascending: false });
-
-        if (error) throw error;
-
-        res.json({ status: 'success', data });
-    } catch (err) {
-        res.status(500).json({ status: 'error', message: err.message });
-    }
-});
-
-
-// ไฟล์ server.js หรือ routes/bookings.js
-router.get('/api/bookings', async (req, res) => {
-    try {
-        // 🟢 แก้ไขตรงนี้: เพิ่ม services (*) และ slots (*) เข้าไปใน select
-        const { data, error } = await supabase
-            .from('bookings')
-            .select(`
-        *,
-        services (*),
-        slots (*)
-      `);
-
-        if (error) throw error;
-
-        // ส่งข้อมูลกลับไปยัง Frontend
-        res.json({ data: data });
-
-    } catch (err) {
-        res.status(500).json({ error: err.message });
-    }
-});
-
 
 module.exports = router;

@@ -9,6 +9,7 @@ const bookingRoutes = require('./routes/bookings');
 const serviceRoutes = require('./routes/services');
 const slotsRoute = require('./routes/slots');
 const authRoutes = require('./routes/auth');
+const reviewsRouter = require('./routes/reviews');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -22,6 +23,7 @@ app.use('/api/bookings', bookingRoutes);
 app.use('/api/services', serviceRoutes);
 app.use('/api/slots', slotsRoute);
 app.use('/api/auth', authRoutes);
+app.use('/api/reviews', reviewsRouter);
 
 // 🌐 2. Clean Page Routes ( HTML Pages )
 app.get(['/', '/index'], (req, res) => {
@@ -48,6 +50,8 @@ app.get('/bookings', (req, res) => {
 app.get('/services', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'services.html'));
 });
+
+
 
 // 📁 3. Static Files Middleware
 app.use(express.static('public'));

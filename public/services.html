@@ -7,77 +7,93 @@
   <title>จัดการแพ็กเกจบริการ - Booking App (Admin)</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link
-    href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Sarabun:wght@400;500;600&display=swap"
+    href="https://fonts.googleapis.com/css2?family=Noto+Serif+Thai:wght@500;600;700&family=IBM+Plex+Sans+Thai:wght@400;500;600;700&display=swap"
     rel="stylesheet">
   <style>
+    :root {
+      --ink: #171512;
+      --ink-soft: #57534A;
+      --bone: #EFE9DD;
+      --paper: #FBF8F2;
+      --moss: #4B5D46;
+      --moss-dark: #3B4A38;
+      --brass: #B9915B;
+      --rose: #C97B6C;
+    }
+
     body {
-      font-family: 'Plus Jakarta Sans', 'Sarabun', sans-serif;
+      font-family: 'IBM Plex Sans Thai', sans-serif;
+      background-color: var(--bone);
+      color: var(--ink);
+    }
+
+    .font-display {
+      font-family: 'Noto Serif Thai', serif;
     }
   </style>
 </head>
 
-<body class="bg-slate-50 flex min-h-screen antialiased text-slate-800">
+<body class="flex min-h-screen antialiased">
 
   <div id="sidebar-container" class="flex min-h-screen"></div>
   <main class="flex-1 p-6 md:p-10 max-w-7xl mx-auto">
 
-    <header class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8 pb-6 border-b border-slate-200">
+    <header class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8 pb-6 border-b border-[var(--ink)]/10">
       <div>
-        <h1 class="text-2xl font-bold text-slate-900 tracking-tight">⚙️ จัดการแพ็กเกจบริการ</h1>
-        <p class="text-sm text-slate-500 mt-1">เพิ่ม ปรับราคา หรือลบรายการบริการที่แสดงหน้าเว็บฝั่งลูกค้า</p>
+        <h1 class="font-display text-2xl font-semibold text-[var(--ink)]">จัดการแพ็กเกจบริการ</h1>
+        <p class="text-sm text-[var(--ink-soft)] mt-1">เพิ่ม ปรับราคา หรือลบรายการบริการที่แสดงหน้าเว็บฝั่งลูกค้า</p>
       </div>
     </header>
 
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
 
       <!-- ฟอร์มเพิ่มบริการใหม่ -->
-      <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm h-fit">
-        <h3 class="font-bold text-slate-900 text-base mb-4 flex items-center gap-2">
-          <span>➕</span> เพิ่มบริการใหม่
+      <div class="bg-[var(--paper)] p-6 rounded-2xl border border-[var(--ink)]/10 h-fit">
+        <h3 class="font-display font-semibold text-[var(--ink)] text-base mb-4">
+          เพิ่มบริการใหม่
         </h3>
 
         <form id="addServiceForm" class="space-y-4">
           <div>
-            <label class="block text-xs font-semibold text-slate-500 uppercase mb-1">ชื่อบริการ / แพ็กเกจ</label>
+            <label class="block text-xs font-semibold text-[var(--ink-soft)] mb-1">ชื่อบริการ / แพ็กเกจ</label>
             <input type="text" id="serviceName" placeholder="เช่น ตัดผม + สระไดร์"
-              class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition"
+              class="w-full bg-white border border-[var(--ink)]/15 rounded-xl p-3 text-sm focus:border-[var(--moss)] focus:ring-2 focus:ring-[var(--moss)]/20 outline-none transition"
               required>
           </div>
 
           <div>
-            <label class="block text-xs font-semibold text-slate-500 uppercase mb-1">ราคา (บาท)</label>
+            <label class="block text-xs font-semibold text-[var(--ink-soft)] mb-1">ราคา (บาท)</label>
             <input type="number" id="servicePrice" placeholder="เช่น 350"
-              class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition"
+              class="w-full bg-white border border-[var(--ink)]/15 rounded-xl p-3 text-sm focus:border-[var(--moss)] focus:ring-2 focus:ring-[var(--moss)]/20 outline-none transition"
               required>
           </div>
 
           <div>
-            <label class="block text-xs font-semibold text-slate-500 uppercase mb-1">ระยะเวลา (นาที)</label>
+            <label class="block text-xs font-semibold text-[var(--ink-soft)] mb-1">ระยะเวลา (นาที)</label>
             <input type="number" id="serviceDuration" placeholder="เช่น 45"
-              class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition"
+              class="w-full bg-white border border-[var(--ink)]/15 rounded-xl p-3 text-sm focus:border-[var(--moss)] focus:ring-2 focus:ring-[var(--moss)]/20 outline-none transition"
               required>
           </div>
 
           <button type="submit"
-            class="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl text-sm shadow-md shadow-blue-500/20 transition">
+            class="w-full py-3 bg-[var(--moss)] hover:bg-[var(--moss-dark)] text-[var(--paper)] font-semibold rounded-full text-sm transition">
             บันทึกบริการใหม่
           </button>
         </form>
       </div>
 
       <!-- ตารางรายการบริการที่มีอยู่ -->
-      <div class="lg:col-span-2 bg-white rounded-2xl shadow-sm border border-slate-200/80 overflow-hidden">
-        <div class="p-5 border-b border-slate-100 flex items-center justify-between">
-          <h3 class="font-bold text-slate-800 text-base">รายการบริการทั้งหมด</h3>
-          <button onclick="fetchServices()" class="text-xs text-blue-600 font-semibold hover:underline">🔄
-            รีเฟรช</button>
+      <div class="lg:col-span-2 bg-[var(--paper)] rounded-2xl border border-[var(--ink)]/10 overflow-hidden">
+        <div class="p-5 flex items-center justify-between" style="border-bottom: 1px solid rgba(23,21,18,0.1);">
+          <h3 class="font-display font-semibold text-[var(--ink)] text-base">รายการบริการทั้งหมด</h3>
+          <button onclick="fetchServices()" class="text-xs text-[var(--moss)] font-semibold hover:underline">รีเฟรช</button>
         </div>
 
         <div class="overflow-x-auto">
           <table class="w-full text-left border-collapse text-sm">
             <thead>
               <tr
-                class="bg-slate-50/80 border-b border-slate-200 text-xs font-semibold uppercase tracking-wider text-slate-500">
+                class="bg-[var(--bone)] text-xs font-semibold text-[var(--ink-soft)]" style="border-bottom: 1px solid rgba(23,21,18,0.1);">
                 <th class="py-4 px-6">ID</th>
                 <th class="py-4 px-6">ชื่อบริการ</th>
                 <th class="py-4 px-6">ระยะเวลา</th>
@@ -85,9 +101,9 @@
                 <th class="py-4 px-6 text-center">จัดการ</th>
               </tr>
             </thead>
-            <tbody id="servicesTableBody" class="divide-y divide-slate-100 font-medium">
+            <tbody id="servicesTableBody" class="divide-y divide-[var(--ink)]/5 font-medium">
               <tr>
-                <td colspan="5" class="text-center py-10 text-slate-400">กำลังโหลดข้อมูล...</td>
+                <td colspan="5" class="text-center py-10 text-[var(--ink-soft)]">กำลังโหลดข้อมูล...</td>
               </tr>
             </tbody>
           </table>
@@ -113,24 +129,24 @@
           tbody.innerHTML = '';
           result.data.forEach(item => {
             tbody.innerHTML += `
-              <tr class="hover:bg-slate-50/80 transition-colors">
-                <td class="py-4 px-6 font-bold text-slate-400">#${item.id}</td>
-                <td class="py-4 px-6 font-semibold text-slate-900">${item.service_name}</td>
-                <td class="py-4 px-6 text-slate-600">${item.duration_minutes} นาที</td>
-                <td class="py-4 px-6 font-bold text-slate-900">฿${Number(item.price).toLocaleString()}</td>
+              <tr class="hover:bg-[var(--bone)]/60 transition-colors">
+                <td class="py-4 px-6 font-bold text-[var(--ink-soft)]">#${item.id}</td>
+                <td class="py-4 px-6 font-semibold text-[var(--ink)]">${item.service_name}</td>
+                <td class="py-4 px-6 text-[var(--ink-soft)]">${item.duration_minutes} นาที</td>
+                <td class="py-4 px-6 font-bold text-[var(--brass)]">฿${Number(item.price).toLocaleString()}</td>
                 <td class="py-4 px-6 text-center">
-                  <button onclick="deleteService(${item.id})" class="px-3 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 rounded-lg text-xs font-semibold transition">
-                    🗑️ ลบ
+                  <button onclick="deleteService(${item.id})" class="px-3 py-1.5 bg-[var(--rose)]/10 hover:bg-[var(--rose)]/20 text-[var(--rose)] border border-[var(--rose)]/30 rounded-full text-xs font-semibold transition">
+                    ลบ
                   </button>
                 </td>
               </tr>
             `;
           });
         } else {
-          tbody.innerHTML = `<tr><td colspan="5" class="text-center py-10 text-slate-400">ยังไม่มีรายการบริการ</td></tr>`;
+          tbody.innerHTML = `<tr><td colspan="5" class="text-center py-10 text-[var(--ink-soft)]">ยังไม่มีรายการบริการ</td></tr>`;
         }
       } catch (err) {
-        tbody.innerHTML = `<tr><td colspan="5" class="text-center py-10 text-rose-500">เกิดข้อผิดพลาดในการโหลดข้อมูล</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="5" class="text-center py-10 text-[var(--rose)]">เกิดข้อผิดพลาดในการโหลดข้อมูล</td></tr>`;
       }
     }
 
