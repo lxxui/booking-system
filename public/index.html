@@ -100,7 +100,7 @@
 <body class="antialiased">
 
     <!-- Navbar -->
-    <nav class="fixed top-0 left-0 right-0 bg-[var(--paper)]/90 backdrop-blur-md z-50 border-b border-[var(--ink)]/10">
+    <nav class="fixed top-0 left-0 right-0 bg-[rgba(251,248,242,0.9)] backdrop-blur-md z-50 border-b border-[rgba(23,21,18,0.1)]">
         <div class="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
             <div class="flex items-center gap-2.5 font-display font-semibold text-lg text-[var(--ink)]">
                 <span class="w-8 h-8 rounded-full border-2 border-dashed border-[var(--brass)] text-[var(--brass)] flex items-center justify-center text-xs font-sans font-bold">01</span>
@@ -125,10 +125,10 @@
             <!-- ซ้าย: ข้อความหลัก -->
             <div class="space-y-7">
                 <span class="text-xs font-medium text-[var(--brass)] tracking-wide">จองคิวบริการล่วงหน้า ไม่ต้องรอหน้าร้าน</span>
-                <h1 class="font-display text-4xl md:text-5xl font-semibold leading-[1.25] text-[var(--paper)]">
+                <h1 class="font-display text-4xl md:text-5xl font-semibold leading-[1.6] text-[var(--paper)]">
                     เลือกวัน เลือกเวลา<br>รับบัตรคิวของคุณ<br>ในไม่กี่วินาที
                 </h1>
-                <p class="text-[var(--paper)]/70 text-base max-w-md leading-relaxed">
+                <p class="text-[rgba(251,248,242,0.7)] text-base max-w-md leading-relaxed">
                     ดูแพ็กเกจ เลือกรอบเวลาที่ว่าง แล้วกรอกชื่อกับเบอร์โทร ระบบจะออกหมายเลขจองให้ทันทีเพื่อใช้ตรวจสอบสถานะภายหลัง
                 </p>
                 <div class="flex flex-wrap gap-4 pt-2">
@@ -137,7 +137,7 @@
                         เริ่มต้นจองคิว
                     </a>
                     <a href="#services"
-                        class="px-8 py-3.5 border border-[var(--paper)]/25 hover:border-[var(--paper)]/50 text-[var(--paper)] rounded-full text-base font-semibold transition">
+                        class="px-8 py-3.5 border border-[rgba(251,248,242,0.25)] hover:border-[rgba(251,248,242,0.5)] text-[var(--paper)] rounded-full text-base font-semibold transition">
                         ดูแพ็กเกจทั้งหมด
                     </a>
                 </div>
@@ -186,7 +186,7 @@
             <div class="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-4">
                 <div>
                     <h2 class="font-display text-2xl md:text-3xl font-semibold">รีวิวจากลูกค้าของเรา</h2>
-                    <p class="text-[var(--paper)]/60 text-sm mt-2">ความประทับใจจากผู้เข้าใช้บริการจริง</p>
+                    <p class="text-[rgba(251,248,242,0.6)] text-sm mt-2">ความประทับใจจากผู้เข้าใช้บริการจริง</p>
                 </div>
                 <div>
                     <button onclick="openReviewModal()" type="button"
@@ -200,7 +200,7 @@
             <div
                 class="relative w-full overflow-hidden [mask-image:_linear-gradient(to_right,transparent_0,_black_128px,_black_calc(100%-128px),transparent_100%)]">
                 <div id="reviewsContainer" class="flex gap-6">
-                    <div class="w-full text-center py-8 text-xs text-[var(--paper)]/50">กำลังโหลดรีวิว...</div>
+                    <div class="w-full text-center py-8 text-xs text-[rgba(251,248,242,0.5)]">กำลังโหลดรีวิว...</div>
                 </div>
             </div>
         </div>
@@ -208,7 +208,7 @@
 
     <!-- Modal สำหรับส่งรีวิวใหม่ -->
     <div id="reviewModal"
-        class="fixed inset-0 bg-[var(--ink)]/50 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+        class="fixed inset-0 bg-[rgba(23,21,18,0.5)] backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
         <div
             class="bg-[var(--paper)] rounded-2xl max-w-md w-full p-6 shadow-xl space-y-4 max-h-[90vh] overflow-y-auto">
             <div class="flex justify-between items-center">
@@ -221,7 +221,7 @@
                 <div>
                     <label class="block text-xs font-medium text-[var(--ink)] mb-1">ชื่อของคุณ</label>
                     <input type="text" id="reviewerName" required
-                        class="w-full px-3 py-2 border border-[var(--ink)]/15 bg-white rounded-xl text-xs focus:ring-2 focus:ring-[var(--moss)]/20 focus:border-[var(--moss)] outline-none"
+                        class="w-full px-3 py-2 border border-[rgba(23,21,18,0.15)] bg-white rounded-xl text-xs focus:ring-2 focus:ring-[rgba(75,93,70,0.2)] focus:border-[var(--moss)] outline-none"
                         placeholder="เช่น คุณสมชาย">
                 </div>
 
@@ -229,7 +229,7 @@
                 <div>
                     <label class="block text-xs font-medium text-[var(--ink)] mb-1">แพ็กเกจที่มาใช้บริการ</label>
                     <select id="reviewService" required
-                        class="w-full px-3 py-2 border border-[var(--ink)]/15 bg-white rounded-xl text-xs focus:ring-2 focus:ring-[var(--moss)]/20 focus:border-[var(--moss)] outline-none">
+                        class="w-full px-3 py-2 border border-[rgba(23,21,18,0.15)] bg-white rounded-xl text-xs focus:ring-2 focus:ring-[rgba(75,93,70,0.2)] focus:border-[var(--moss)] outline-none">
                         <option value="" disabled selected>กำลังโหลดรายชื่อแพ็กเกจ...</option>
                     </select>
                 </div>
@@ -238,7 +238,7 @@
                 <div>
                     <label class="block text-xs font-medium text-[var(--ink)] mb-1">ให้คะแนนความพึงพอใจ</label>
                     <select id="reviewRating"
-                        class="w-full px-3 py-2 border border-[var(--ink)]/15 bg-white rounded-xl text-xs focus:ring-2 focus:ring-[var(--moss)]/20 focus:border-[var(--moss)] outline-none">
+                        class="w-full px-3 py-2 border border-[rgba(23,21,18,0.15)] bg-white rounded-xl text-xs focus:ring-2 focus:ring-[rgba(75,93,70,0.2)] focus:border-[var(--moss)] outline-none">
                         <option value="5">⭐⭐⭐⭐⭐ (5/5 ประทับใจมาก)</option>
                         <option value="4">⭐⭐⭐⭐☆ (4/5 ดีมาก)</option>
                         <option value="3">⭐⭐⭐☆☆ (3/5 ปานกลาง)</option>
@@ -272,7 +272,7 @@
                     <label class="block text-xs font-medium text-[var(--ink)] mb-1">ความคิดเห็นเพิ่มเติม <span
                             class="text-[var(--ink-soft)] font-normal">(ไม่บังคับ)</span></label>
                     <textarea id="reviewComment" rows="3"
-                        class="w-full px-3 py-2 border border-[var(--ink)]/15 bg-white rounded-xl text-xs focus:ring-2 focus:ring-[var(--moss)]/20 focus:border-[var(--moss)] outline-none"
+                        class="w-full px-3 py-2 border border-[rgba(23,21,18,0.15)] bg-white rounded-xl text-xs focus:ring-2 focus:ring-[rgba(75,93,70,0.2)] focus:border-[var(--moss)] outline-none"
                         placeholder="พิมพ์บอกเล่ารายละเอียดเพิ่มเติม..."></textarea>
                 </div>
 
@@ -301,7 +301,7 @@
                     <label class="block text-xs font-semibold text-[var(--ink-soft)] mb-2">1.
                         เลือกบริการ</label>
                     <select id="serviceSelect"
-                        class="w-full bg-white border border-[var(--ink)]/15 text-[var(--ink)] rounded-xl p-3.5 focus:border-[var(--moss)] focus:ring-4 focus:ring-[var(--moss)]/10 transition outline-none font-medium text-sm"
+                        class="w-full bg-white border border-[rgba(23,21,18,0.15)] text-[var(--ink)] rounded-xl p-3.5 focus:border-[var(--moss)] focus:ring-4 focus:ring-[rgba(75,93,70,0.1)] transition outline-none font-medium text-sm"
                         required>
                         <option value="">-- กำลังโหลดบริการ... --</option>
                     </select>
@@ -313,13 +313,13 @@
                         <label class="block text-xs font-semibold text-[var(--ink)] mb-1">ชื่อเล่นของคุณ <span
                                 class="text-[var(--rose)]">*</span></label>
                         <input type="text" id="customerNameInput" required placeholder="เช่น ปอนด์"
-                            class="w-full px-3.5 py-2.5 bg-white border border-[var(--ink)]/15 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-[var(--moss)]/20 focus:border-[var(--moss)] transition">
+                            class="w-full px-3.5 py-2.5 bg-white border border-[rgba(23,21,18,0.15)] rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-[rgba(75,93,70,0.2)] focus:border-[var(--moss)] transition">
                     </div>
                     <div>
                         <label class="block text-xs font-semibold text-[var(--ink)] mb-1">เบอร์โทรศัพท์ <span
                                 class="text-[var(--rose)]">*</span></label>
                         <input type="tel" id="phoneInput" required placeholder="เช่น 0812345678" maxlength="10"
-                            class="w-full px-3.5 py-2.5 bg-white border border-[var(--ink)]/15 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-[var(--moss)]/20 focus:border-[var(--moss)] transition">
+                            class="w-full px-3.5 py-2.5 bg-white border border-[rgba(23,21,18,0.15)] rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-[rgba(75,93,70,0.2)] focus:border-[var(--moss)] transition">
                     </div>
                 </div>
 
@@ -331,7 +331,7 @@
 
                     <div id="slotsContainer" class="space-y-4">
                         <div
-                            class="text-center py-4 text-xs text-[var(--ink-soft)] border border-dashed border-[var(--ink)]/20 rounded-xl">
+                            class="text-center py-4 text-xs text-[var(--ink-soft)] border border-dashed border-[rgba(23,21,18,0.2)] rounded-xl">
                             กำลังโหลดรอบเวลาบริการ...
                         </div>
                     </div>
@@ -341,7 +341,7 @@
 
                 <!-- ปุ่มยืนยัน -->
                 <button type="submit" id="submitBookingBtn" disabled
-                    class="w-full py-4 bg-[var(--moss)] hover:bg-[var(--moss-dark)] disabled:bg-[var(--ink)]/10 disabled:text-[var(--ink-soft)] disabled:cursor-not-allowed text-[var(--paper)] font-semibold rounded-full transition duration-200">
+                    class="w-full py-4 bg-[var(--moss)] hover:bg-[var(--moss-dark)] disabled:bg-[rgba(23,21,18,0.1)] disabled:text-[var(--ink-soft)] disabled:cursor-not-allowed text-white font-semibold rounded-full transition duration-200">
                     ยืนยันการจองคิว
                 </button>
             </form>
@@ -355,39 +355,39 @@
         <div class="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-10 items-center">
             <div class="space-y-4">
                 <h2 class="font-display text-2xl font-semibold">ที่ตั้งร้านและการติดต่อ</h2>
-                <p class="text-[var(--paper)]/60 text-sm leading-relaxed">
+                <p class="text-[rgba(251,248,242,0.6)] text-sm leading-relaxed">
                     123/45 ถนนสุขุมวิท แขวงคลองเตย เขตคลองเตย กรุงเทพมหานคร 10110<br>
                     เปิดให้บริการทุกวัน: 10:00 น. - 20:00 น.
                 </p>
-                <div class="pt-2 text-sm text-[var(--paper)]/80 space-y-1">
+                <div class="pt-2 text-sm text-[rgba(251,248,242,0.8)] space-y-1">
                     <p>โทร: 02-123-4567</p>
                     <p>Line Official: @bookingstudio</p>
                 </div>
             </div>
-            <div class="bg-[var(--paper)]/5 p-6 rounded-2xl border border-[var(--paper)]/10 text-center">
-                <span class="text-[var(--paper)]/50 text-sm">Google Maps Location (Simulated)</span>
+            <div class="bg-[rgba(251,248,242,0.05)] p-6 rounded-2xl border border-[rgba(251,248,242,0.1)] text-center">
+                <span class="text-[rgba(251,248,242,0.5)] text-sm">Google Maps Location (Simulated)</span>
                 <div
-                    class="w-full h-40 bg-[var(--paper)]/10 rounded-xl mt-3 flex items-center justify-center text-[var(--paper)]/40 text-xs">
+                    class="w-full h-40 bg-[rgba(251,248,242,0.1)] rounded-xl mt-3 flex items-center justify-center text-[rgba(251,248,242,0.4)] text-xs">
                     [ Map View ]
                 </div>
             </div>
         </div>
     </section>
 
-    <footer class="py-6 text-center text-xs text-[var(--paper)]/40 bg-[var(--ink)] border-t border-[var(--paper)]/10">
+    <footer class="py-6 text-center text-xs text-[rgba(251,248,242,0.4)] bg-[var(--ink)] border-t border-[rgba(251,248,242,0.1)]">
         © 2026 BookingStudio. All rights reserved. (Portfolio Project)
     </footer>
 
     <!-- ปุ่มลอยมุมขวาล่าง -->
     <button type="button" onclick="openStatusModal()"
-        class="fixed bottom-6 right-6 z-40 flex items-center gap-2.5 pl-4 pr-5 py-3 bg-[var(--ink)] hover:bg-[var(--moss-dark)] text-[var(--paper)] rounded-full shadow-2xl border border-[var(--paper)]/10 transition-all duration-300 hover:scale-105 active:scale-95">
+        class="fixed bottom-6 right-6 z-40 flex items-center gap-2.5 pl-4 pr-5 py-3 bg-[var(--ink)] hover:bg-[var(--moss-dark)] text-[var(--paper)] rounded-full shadow-2xl border border-[rgba(251,248,242,0.1)] transition-all duration-300 hover:scale-105 active:scale-95">
         <span class="w-7 h-7 rounded-full border-2 border-dashed border-[var(--brass)] flex items-center justify-center text-[10px] font-bold text-[var(--brass)]">?</span>
         <span class="text-xs font-semibold">ตรวจสอบสถานะการจอง</span>
     </button>
 
     <!-- Modal ป๊อปอัพเช็กสถานะ -->
     <div id="statusModal"
-        class="fixed inset-0 z-50 hidden flex items-center justify-center bg-[var(--ink)]/60 backdrop-blur-sm p-4 transition-all">
+        class="fixed inset-0 z-50 hidden flex items-center justify-center bg-[rgba(23,21,18,0.6)] backdrop-blur-sm p-4 transition-all">
         <div class="bg-[var(--paper)] w-full max-w-md rounded-2xl p-6 shadow-2xl relative space-y-4">
 
             <!-- ปุ่มปิด modal -->
@@ -403,7 +403,7 @@
             <!-- ฟอร์มค้นหา -->
             <div class="flex gap-2">
                 <input type="text" id="searchInput" placeholder="กรอกเบอร์โทรศัพท์" maxlength="10"
-                    class="w-full px-3.5 py-2.5 bg-white border border-[var(--ink)]/15 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-[var(--moss)]/20 focus:border-[var(--moss)] transition">
+                    class="w-full px-3.5 py-2.5 bg-white border border-[rgba(23,21,18,0.15)] rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-[rgba(75,93,70,0.2)] focus:border-[var(--moss)] transition">
                 <button onclick="checkBookingStatus()"
                     class="px-4 py-2.5 bg-[var(--moss)] hover:bg-[var(--moss-dark)] text-[var(--paper)] text-xs font-semibold rounded-xl transition whitespace-nowrap">
                     ค้นหา
@@ -444,7 +444,7 @@
                         select.innerHTML += `<option value="${s.id}">${s.service_name} • (฿${Number(s.price).toLocaleString()})</option>`;
 
                         cardsContainer.innerHTML += `
-            <div class="bg-[var(--paper)] p-6 rounded-2xl border border-[var(--ink)]/10 flex flex-col justify-between hover:shadow-lg transition">
+            <div class="bg-[var(--paper)] p-6 rounded-2xl border border-[rgba(23,21,18,0.1)] flex flex-col justify-between hover:shadow-lg transition">
               <div>
                 <h3 class="font-display font-semibold text-[var(--ink)] text-lg mb-1">${s.service_name}</h3>
                 <p class="text-xs text-[var(--ink-soft)] mb-5">ระยะเวลาให้บริการ ${s.duration_minutes} นาที</p>
@@ -503,8 +503,8 @@
                         ${isFull ? 'disabled' : ''}
                         class="slot-btn relative p-3 border rounded-2xl text-center transition-all flex flex-col items-center justify-between gap-2 group
                         ${isFull
-                                ? 'bg-[var(--ink)]/5 border-[var(--ink)]/10 opacity-50 cursor-not-allowed'
-                                : 'bg-white border-[var(--ink)]/10 hover:border-[var(--moss)] hover:shadow-md active:scale-95'}"
+                                ? 'bg-[rgba(23,21,18,0.05)] border-[rgba(23,21,18,0.1)] opacity-50 cursor-not-allowed'
+                                : 'bg-white border-[rgba(23,21,18,0.1)] hover:border-[var(--moss)] hover:shadow-md active:scale-95'}"
                     >
                         <!-- ส่วนวันที่ -->
                         <div class="flex flex-col items-center leading-tight">
@@ -518,7 +518,7 @@
                         </div>
 
                         <!-- ส่วนสถานะคิว -->
-                        <span class="slot-count text-[10px] px-2.5 py-0.5 rounded-full font-bold ${isFull ? 'bg-[var(--rose)]/15 text-[var(--rose)]' : 'bg-[var(--moss)]/10 text-[var(--moss)]'}">
+                        <span class="slot-count text-[10px] px-2.5 py-0.5 rounded-full font-bold ${isFull ? 'bg-[rgba(201,123,108,0.15)] text-[var(--rose)]' : 'bg-[rgba(75,93,70,0.1)] text-[var(--moss)]'}">
                             ${isFull ? 'เต็มแล้ว' : `ว่าง ${slot.capacity} คิว`}
                         </span>
                     </button>
@@ -566,12 +566,12 @@
             document.getElementById('slotId').value = slotId;
 
             document.querySelectorAll('.slot-btn').forEach(btn => {
-                btn.classList.remove('border-[var(--moss)]', 'bg-[var(--moss)]/5', 'ring-2', 'ring-[var(--moss)]/20');
-                btn.classList.add('bg-white', 'border-[var(--ink)]/10');
+                btn.classList.remove('border-[var(--moss)]', 'bg-[rgba(75,93,70,0.05)]', 'ring-2', 'ring-[rgba(75,93,70,0.2)]');
+                btn.classList.add('bg-white', 'border-[rgba(23,21,18,0.1)]');
             });
 
-            btnElement.classList.remove('bg-white', 'border-[var(--ink)]/10');
-            btnElement.classList.add('border-[var(--moss)]', 'bg-[var(--moss)]/5', 'ring-2', 'ring-[var(--moss)]/20');
+            btnElement.classList.remove('bg-white', 'border-[rgba(23,21,18,0.1)]');
+            btnElement.classList.add('border-[var(--moss)]', 'bg-[rgba(75,93,70,0.05)]', 'ring-2', 'ring-[rgba(75,93,70,0.2)]');
 
             const submitBtn = document.getElementById('submitBookingBtn');
             if (submitBtn) {
@@ -654,8 +654,8 @@
             const box = document.getElementById('alertBox');
             box.classList.remove('hidden');
             box.className = `p-4 rounded-xl text-sm font-medium border text-center ${type === 'success'
-                ? 'bg-[var(--moss)]/10 border-[var(--moss)]/30 text-[var(--moss-dark)]'
-                : 'bg-[var(--rose)]/10 border-[var(--rose)]/30 text-[var(--rose)]'
+                ? 'bg-[rgba(75,93,70,0.1)] border-[rgba(75,93,70,0.3)] text-[var(--moss-dark)]'
+                : 'bg-[rgba(201,123,108,0.1)] border-[rgba(201,123,108,0.3)] text-[var(--rose)]'
                 }`;
             box.textContent = msg;
         }
@@ -751,11 +751,11 @@
                     // 1. Badge สถานะ
                     let statusBadge = '';
                     if (item.status === 'confirmed') {
-                        statusBadge = '<span class="bg-[var(--moss)]/10 text-[var(--moss-dark)] px-2.5 py-1 rounded-full text-[11px] font-bold">ยืนยันแล้ว</span>';
+                        statusBadge = '<span class="bg-[rgba(75,93,70,0.1)] text-[var(--moss-dark)] px-2.5 py-1 rounded-full text-[11px] font-bold">ยืนยันแล้ว</span>';
                     } else if (item.status === 'cancelled') {
-                        statusBadge = '<span class="bg-[var(--rose)]/15 text-[var(--rose)] px-2.5 py-1 rounded-full text-[11px] font-bold">ยกเลิกแล้ว</span>';
+                        statusBadge = '<span class="bg-[rgba(201,123,108,0.15)] text-[var(--rose)] px-2.5 py-1 rounded-full text-[11px] font-bold">ยกเลิกแล้ว</span>';
                     } else {
-                        statusBadge = '<span class="bg-[var(--brass)]/15 text-[var(--brass)] px-2.5 py-1 rounded-full text-[11px] font-bold">รอยืนยัน</span>';
+                        statusBadge = '<span class="bg-[rgba(185,145,91,0.15)] text-[var(--brass)] px-2.5 py-1 rounded-full text-[11px] font-bold">รอยืนยัน</span>';
                     }
 
                     // 2. เวลาของ Slot
@@ -778,7 +778,7 @@
                     const servicePrice = item.services?.price || item.service?.price ? `฿${Number(item.services?.price || item.service?.price).toLocaleString()}` : '';
 
                     // 4. การ์ดข้อมูลแบบละเอียด (สไตล์บัตรคิว)
-                    resultBox.className = 'relative p-4 rounded-2xl bg-white border border-[var(--ink)]/10 shadow-sm text-left space-y-3';
+                    resultBox.className = 'relative p-4 rounded-2xl bg-white border border-[rgba(23,21,18,0.1)] shadow-sm text-left space-y-3';
                     resultBox.innerHTML = `
                 <div class="flex justify-between items-center stub-line stub-card pb-2.5" style="border-top:none">
                     <div>
@@ -805,10 +805,10 @@
                             <span class="text-[var(--ink-soft)] block text-[10px]">บริการที่เลือก</span>
                             <span class="font-bold text-[var(--ink)] text-sm">${serviceName}</span>
                         </div>
-                        ${servicePrice ? `<span class="font-extrabold text-[var(--brass)] text-sm bg-[var(--brass)]/10 px-2 py-0.5 rounded-lg">${servicePrice}</span>` : ''}
+                        ${servicePrice ? `<span class="font-extrabold text-[var(--brass)] text-sm bg-[rgba(185,145,91,0.1)] px-2 py-0.5 rounded-lg">${servicePrice}</span>` : ''}
                     </div>
 
-                    <div class="bg-[var(--moss)]/5 p-2.5 rounded-xl flex items-center justify-between">
+                    <div class="bg-[rgba(75,93,70,0.05)] p-2.5 rounded-xl flex items-center justify-between">
                         <div>
                             <span class="text-[var(--moss-dark)] block text-[10px] font-semibold">รอบเวลาที่จอง</span>
                             <span class="font-bold text-[var(--ink)]">${slotTimeString}</span>
@@ -817,12 +817,12 @@
                 </div>
             `;
                 } else {
-                    resultBox.className = 'p-4 rounded-2xl bg-[var(--rose)]/10 text-center text-[var(--rose)] font-medium text-xs';
+                    resultBox.className = 'p-4 rounded-2xl bg-[rgba(201,123,108,0.1)] text-center text-[var(--rose)] font-medium text-xs';
                     resultBox.innerHTML = 'ไม่พบข้อมูลการจองนี้ กรุณาตรวจสอบ ID หรือ เบอร์โทรศัพท์';
                 }
             } catch (err) {
                 console.error('checkBookingStatus error:', err);
-                resultBox.className = 'p-4 rounded-2xl bg-[var(--rose)]/10 text-center text-[var(--rose)] font-medium text-xs';
+                resultBox.className = 'p-4 rounded-2xl bg-[rgba(201,123,108,0.1)] text-center text-[var(--rose)] font-medium text-xs';
                 resultBox.innerHTML = 'เกิดข้อผิดพลาดในการดึงข้อมูลการจอง';
             }
         }
@@ -863,7 +863,7 @@
 
                         const tagsHTML = extractedTags.length > 0
                             ? `<div class="flex flex-wrap gap-1.5 pt-0.5">
-                        ${extractedTags.map(tag => `<span class="text-[10px] bg-white/10 text-[var(--paper)]/80 px-2 py-0.5 rounded-md font-medium">${tag}</span>`).join('')}
+                        ${extractedTags.map(tag => `<span class="text-[10px] bg-white/10 text-[rgba(251,248,242,0.8)] px-2 py-0.5 rounded-md font-medium">${tag}</span>`).join('')}
                        </div>`
                             : '';
 
@@ -872,7 +872,7 @@
                         <div class="space-y-2.5">
                             <div class="flex items-center justify-between gap-2">
                                 <div class="text-[var(--rose)] text-xs tracking-wider">${stars}</div>
-                                ${serviceName ? `<span class="text-[10px] font-medium bg-[var(--moss)]/10 text-[var(--moss-dark)] px-2 py-0.5 rounded-md">${serviceName}</span>` : ''}
+                                ${serviceName ? `<span class="text-[10px] font-medium bg-[rgba(75,93,70,0.1)] text-[var(--moss-dark)] px-2 py-0.5 rounded-md">${serviceName}</span>` : ''}
                             </div>
                             ${cleanComment ? `<p class="text-[var(--ink-soft)] text-xs leading-relaxed line-clamp-3">"${cleanComment}"</p>` : ''}
                         </div>
@@ -896,7 +896,7 @@
 
                 } else {
                     container.className = "flex justify-center w-full";
-                    container.innerHTML = `<div class="text-center py-8 text-xs text-[var(--paper)]/50">ยังไม่มีรีวิวในขณะนี้</div>`;
+                    container.innerHTML = `<div class="text-center py-8 text-xs text-[rgba(251,248,242,0.5)]">ยังไม่มีรีวิวในขณะนี้</div>`;
                 }
             } catch (err) {
                 console.error('fetchReviews error:', err);
@@ -943,7 +943,7 @@
             document.getElementById('reviewForm').reset();
             selectedTags = [];
             document.querySelectorAll('.tag-btn').forEach(btn => {
-                btn.classList.remove('bg-[var(--moss)]/10', 'text-[var(--moss-dark)]', 'border-[var(--moss)]/40', 'font-semibold');
+                btn.classList.remove('bg-[rgba(75,93,70,0.1)]', 'text-[var(--moss-dark)]', 'border-[rgba(75,93,70,0.4)]', 'font-semibold');
                 btn.classList.add('bg-[var(--bone)]', 'text-[var(--ink-soft)]', 'border-transparent');
             });
         }
@@ -957,10 +957,10 @@
             if (index === -1) {
                 selectedTags.push(tagValue);
                 btnElement.classList.remove('bg-[var(--bone)]', 'text-[var(--ink-soft)]', 'border-transparent');
-                btnElement.classList.add('bg-[var(--moss)]/10', 'text-[var(--moss-dark)]', 'border-[var(--moss)]/40', 'font-semibold');
+                btnElement.classList.add('bg-[rgba(75,93,70,0.1)]', 'text-[var(--moss-dark)]', 'border-[rgba(75,93,70,0.4)]', 'font-semibold');
             } else {
                 selectedTags.splice(index, 1);
-                btnElement.classList.remove('bg-[var(--moss)]/10', 'text-[var(--moss-dark)]', 'border-[var(--moss)]/40', 'font-semibold');
+                btnElement.classList.remove('bg-[rgba(75,93,70,0.1)]', 'text-[var(--moss-dark)]', 'border-[rgba(75,93,70,0.4)]', 'font-semibold');
                 btnElement.classList.add('bg-[var(--bone)]', 'text-[var(--ink-soft)]', 'border-transparent');
             }
         }
