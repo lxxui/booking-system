@@ -1,6 +1,7 @@
-const express = require('express');
+import express from 'express';
+import supabase from '../config/supabase.js';
+
 const router = express.Router();
-const supabase = require('../config/supabase');
 
 // ฟังก์ชันสำหรับสร้างรหัสจองแบบสุ่ม (เช่น BK-7K9A2X)
 function generateBookingCode() {
@@ -49,14 +50,12 @@ router.get('/search', async (req, res) => {
             return res.status(400).json({ status: 'error', message: 'กรุณาระบุหมายเลขเบอร์โทรศัพท์' });
         }
 
-        // Clean ข้อมูล: ตัดขีด (-) ช่องว่าง หรือตัวอักษรออก ให้เหลือเฉพาะตัวเลข
         const cleanPhone = query.trim().replace(/[^0-9]/g, '');
 
         if (!cleanPhone) {
             return res.status(400).json({ status: 'error', message: 'รูปแบบเบอร์โทรศัพท์ไม่ถูกต้อง' });
         }
 
-        // ค้นหาเจาะจงเฉพาะคอลัมน์ customer_phone
         const { data, error } = await supabase
             .from('bookings')
             .select('*, services(service_name, price), slots(start_time, end_time)')
@@ -98,7 +97,6 @@ router.post('/', async (req, res) => {
             });
         }
 
-        // Step 1: ตรวจสอบความมีอยู่และคิวคงเหลือของ Slot
         const { data: slot, error: slotErr } = await supabase
             .from('slots')
             .select('id, capacity')
@@ -113,7 +111,6 @@ router.post('/', async (req, res) => {
             return res.status(400).json({ status: 'error', message: 'ขออภัย รอบเวลานี้เต็มแล้ว' });
         }
 
-        // Step 2: Atomic Update - ลบ Capacity ลง 1
         const { data: updatedSlot, error: atomicErr } = await supabase
             .from('slots')
             .update({ capacity: slot.capacity - 1 })
@@ -125,7 +122,6 @@ router.post('/', async (req, res) => {
             return res.status(409).json({ status: 'error', message: 'ขออภัย คิวในรอบเวลานี้เพิ่งถูกจองเต็มไปเมื่อสักครู่' });
         }
 
-        // Step 3: สุ่มรหัส booking_code
         const bookingCode = generateBookingCode();
         const bookingStatus = status || 'pending';
 
@@ -141,7 +137,6 @@ router.post('/', async (req, res) => {
             }])
             .select();
 
-        // Rollback Safety
         if (bookingErr) {
             console.error('Insert Booking Failed, Rolling back slot capacity:', bookingErr);
             const { data: currentSlot } = await supabase
@@ -185,12 +180,16 @@ router.patch('/:id/status', async (req, res) => {
             return res.status(400).json({ status: 'error', message: 'สถานะไม่ถูกต้อง' });
         }
 
-        // 📌 ปรับปรุงจุดนี้: ค้นหาทั้งรหัส BK-C3UXVS หรือ ID เพียวๆ
-        const { data: currentBooking, error: fetchErr } = await supabase
-            .from('bookings')
-            .select('*')
-            .or(`id.eq.${id},booking_code.eq.${id},booking_code.eq.BK-${id}`)
-            .maybeSingle();
+        // ค้นหารายการด้วย Primary Key ID หรือ booking_code
+        let query = supabase.from('bookings').select('*');
+        
+        if (!isNaN(id)) {
+            query = query.or(`id.eq.${id},booking_code.eq.${id}`);
+        } else {
+            query = query.eq('booking_code', id);
+        }
+
+        const { data: currentBooking, error: fetchErr } = await query.maybeSingle();
 
         if (fetchErr || !currentBooking) {
             console.error('Fetch Booking Error:', fetchErr);
@@ -199,7 +198,6 @@ router.patch('/:id/status', async (req, res) => {
 
         const realId = currentBooking.id;
 
-        // อัปเดตข้อมูลด้วย Primary Key จริงที่เจอในฐานข้อมูล
         const { data: updatedBooking, error: updateErr } = await supabase
             .from('bookings')
             .update({ status: newStatus })
@@ -224,4 +222,4 @@ router.patch('/:id/status', async (req, res) => {
     }
 });
 
-module.exports = router;
+export default router;

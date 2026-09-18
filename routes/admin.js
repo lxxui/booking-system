@@ -1,3 +1,9 @@
+import express from 'express';
+import supabase from '../config/supabase.js';
+import { verifyToken } from '../middleware/auth.js'; // ปรับ path middleware ตามโครงสร้างโปรเจกต์ของคุณ
+
+const router = express.Router();
+
 // GET /api/admin/stats - ดึงข้อมูลสถิติสำหรับ Dashboard (ต้องผ่าน Middleware verifyToken)
 router.get('/stats', verifyToken, async (req, res) => {
     try {
@@ -72,3 +78,5 @@ router.get('/stats', verifyToken, async (req, res) => {
         res.status(500).json({ status: 'error', message: err.message });
     }
 });
+
+export default router;

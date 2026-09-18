@@ -80,69 +80,6 @@
 
     const API_URL = 'http://localhost:3000/api';
 
-    async function fetchBookings() {
-      const tbody = document.getElementById('bookingsTableBody');
-      tbody.innerHTML = `<tr><td colspan="6" class="text-center py-10 text-[var(--ink-soft)]">กำลังดึงข้อมูล...</td></tr>`;
-
-      try {
-        const res = await fetch(`${API_URL}/bookings`);
-        const result = await res.json();
-
-        if (result.status === 'success' && result.data.length > 0) {
-          tbody.innerHTML = '';
-          result.data.forEach(item => {
-            const serviceName = item.services ? item.services.service_name : 'ไม่ระบุบริการ';
-            const price = item.services ? `฿${Number(item.services.price).toLocaleString()}` : '-';
-
-            tbody.innerHTML += `
-              <tr class="hover:bg-[var(--bone)]/60 transition-colors">
-                <td class="py-4 px-6 font-bold text-[var(--ink)]">#BK-${item.id}</td>
-                <td class="py-4 px-6 font-semibold text-[var(--ink)]">${serviceName}</td>
-                <td class="py-4 px-6">
-                  <span class="px-2.5 py-1 bg-[var(--bone)] text-[var(--ink-soft)] rounded-lg text-xs font-semibold">Slot #${item.slot_id}</span>
-                </td>
-                <td class="py-4 px-6 font-semibold text-[var(--brass)]">${price}</td>
-                <td class="py-4 px-6">${getStatusBadge(item.status)}</td>
-                <td class="py-4 px-6 text-center">
-                  <div class="flex items-center justify-center gap-2">
-                    <button onclick="updateStatus(${item.id}, 'confirmed')" class="px-3 py-1.5 bg-[var(--moss)] hover:bg-[var(--moss-dark)] text-[var(--paper)] rounded-full text-xs font-semibold transition">
-                      รับคิว
-                    </button>
-                    <button onclick="updateStatus(${item.id}, 'cancelled')" class="px-3 py-1.5 bg-[var(--rose)]/10 hover:bg-[var(--rose)]/20 text-[var(--rose)] border border-[var(--rose)]/30 rounded-full text-xs font-semibold transition">
-                      ยกเลิก
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            `;
-          });
-        } else {
-          tbody.innerHTML = `<tr><td colspan="6" class="text-center py-10 text-[var(--ink-soft)]">ยังไม่มีรายการจองคิว</td></tr>`;
-        }
-      } catch (err) {
-        tbody.innerHTML = `<tr><td colspan="6" class="text-center py-10 text-[var(--rose)]">เกิดข้อผิดพลาดในการโหลดข้อมูล</td></tr>`;
-      }
-    }
-
-    // ฟังก์ชันยิง API อัปเดตสถานะคิว
-    async function updateStatus(bookingId, newStatus) {
-      try {
-        const res = await fetch(`${API_URL}/bookings/${bookingId}/status`, {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ status: newStatus })
-        });
-        const result = await res.json();
-        if (res.ok && result.status === 'success') {
-          fetchBookings(); // รีโหลดตารางใหม่เพื่อแสดงสถานะล่าสุด
-        } else {
-          alert('ไม่สามารถเปลี่ยนสถานะได้: ' + result.message);
-        }
-      } catch (err) {
-        alert('เกิดข้อผิดพลาดในการเชื่อมต่อกับ Server');
-      }
-    }
-
     function getStatusBadge(status) {
       if (status === 'confirmed') {
         return `<span class="px-3 py-1 bg-[var(--moss)]/10 text-[var(--moss-dark)] border border-[var(--moss)]/30 rounded-full text-xs font-semibold inline-flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-[var(--moss)]"></span>รับคิวแล้ว</span>`;
@@ -150,6 +87,87 @@
         return `<span class="px-3 py-1 bg-[var(--rose)]/10 text-[var(--rose)] border border-[var(--rose)]/30 rounded-full text-xs font-semibold inline-flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-[var(--rose)]"></span>ยกเลิกคิวแล้ว</span>`;
       }
       return `<span class="px-3 py-1 bg-[var(--brass)]/10 text-[var(--brass)] border border-[var(--brass)]/30 rounded-full text-xs font-semibold inline-flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-[var(--brass)] animate-pulse"></span>รอดำเนินการ</span>`;
+    }
+
+    // 1. ดึงข้อมูลรายการจอง
+    async function fetchBookings() {
+      const tbody = document.getElementById('bookingsTableBody');
+      if (!tbody) return;
+
+      tbody.innerHTML = `<tr><td colspan="6" class="text-center py-10 text-[var(--ink-soft)]">กำลังดึงข้อมูล...</td></tr>`;
+
+      try {
+        const res = await fetch(`${API_URL}/bookings`);
+        const result = await res.json();
+        const bookingsList = result.data || result || [];
+
+        if (res.ok && bookingsList.length > 0) {
+          tbody.innerHTML = '';
+          bookingsList.forEach(item => {
+            const serviceName = item.services ? item.services.service_name : 'ไม่ระบุบริการ';
+            const price = item.services ? `฿${Number(item.services.price).toLocaleString()}` : '-';
+            const displayCode = item.booking_code || `#BK-${item.id}`;
+
+            tbody.innerHTML += `
+            <tr id="booking-row-${item.id}" class="hover:bg-[var(--bone)]/60 transition-colors">
+              <td class="py-4 px-6 font-bold text-[var(--ink)]">${displayCode}</td>
+              <td class="py-4 px-6 font-semibold text-[var(--ink)]">${serviceName}</td>
+              <td class="py-4 px-6">
+                <span class="px-2.5 py-1 bg-[var(--bone)] text-[var(--ink-soft)] rounded-lg text-xs font-semibold">Slot #${item.slot_id}</span>
+              </td>
+              <td class="py-4 px-6 font-semibold text-[var(--brass)]">${price}</td>
+              <td class="py-4 px-6 status-cell">${getStatusBadge(item.status)}</td>
+              <td class="py-4 px-6 text-center">
+                <div class="flex items-center justify-center gap-2">
+                  <button onclick="updateStatus('${item.id}', 'confirmed')" class="px-3 py-1.5 bg-[var(--moss)] hover:bg-[var(--moss-dark)] text-[var(--paper)] rounded-full text-xs font-semibold transition">
+                    รับคิว
+                  </button>
+                  <button onclick="updateStatus('${item.id}', 'cancelled')" class="px-3 py-1.5 bg-[var(--rose)]/10 hover:bg-[var(--rose)]/20 text-[var(--rose)] border border-[var(--rose)]/30 rounded-full text-xs font-semibold transition">
+                    ยกเลิก
+                  </button>
+                </div>
+              </td>
+            </tr>
+          `;
+          });
+        } else {
+          tbody.innerHTML = `<tr><td colspan="6" class="text-center py-10 text-[var(--ink-soft)]">ยังไม่มีรายการจองคิว</td></tr>`;
+        }
+      } catch (err) {
+        console.error('Fetch error:', err);
+        tbody.innerHTML = `<tr><td colspan="6" class="text-center py-10 text-[var(--rose)]">เกิดข้อผิดพลาดในการโหลดข้อมูล</td></tr>`;
+      }
+    }
+
+    // 2. ฟังก์ชันอัปเดตสถานะ
+    async function updateStatus(bookingId, targetStatus) {
+      // เปลี่ยน UI บนหน้าจอทันทีเพื่อทดสอบ
+      const tr = document.getElementById(`booking-row-${bookingId}`);
+      if (tr) {
+        const statusCell = tr.querySelector('.status-cell');
+        if (statusCell) statusCell.innerHTML = getStatusBadge(targetStatus);
+      }
+
+      try {
+        const res = await fetch(`${API_URL}/bookings/${bookingId}/status`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ status: targetStatus })
+        });
+
+        const result = await res.json().catch(() => ({}));
+
+        if (res.ok) {
+          await fetchBookings();
+        } else {
+          alert('ไม่สามารถอัปเดตสถานะได้: ' + (result.message || 'เกิดข้อผิดพลาด'));
+          await fetchBookings();
+        }
+      } catch (err) {
+        console.error('Update status error:', err);
+        alert('เกิดข้อผิดพลาดในการเชื่อมต่อกับ Server');
+        await fetchBookings();
+      }
     }
 
     fetchBookings();

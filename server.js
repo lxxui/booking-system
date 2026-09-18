@@ -1,15 +1,22 @@
-/* eslint-env node */
-require('dotenv').config();
-const express = require('express');
-const cors = require('cors');
-const path = require('path');
+import express from 'express';
+import cors from 'cors';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import process from 'node:process';
+import dotenv from 'dotenv';
 
-// นำเข้า Routes Modules
-const bookingRoutes = require('./routes/bookings');
-const serviceRoutes = require('./routes/services');
-const slotsRoute = require('./routes/slots');
-const authRoutes = require('./routes/auth');
-const reviewsRouter = require('./routes/reviews');
+// นำเข้า Routes Modules (ต้องใส่นามสกุล .js ทุกครั้ง)
+import bookingRoutes from './routes/bookings.js';
+import serviceRoutes from './routes/services.js';
+import slotsRoute from './routes/slots.js';
+import authRoutes from './routes/auth.js';
+import reviewsRouter from './routes/reviews.js';
+
+dotenv.config();
+
+// สร้าง __dirname สำหรับใช้งานในระบบ ES Modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -34,7 +41,6 @@ app.get('/admin', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'admin.html'));
 });
 
-//app.get('/admin-dashboard', (req, res) => {
 app.get('/admin-dashboard', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'admin-dashboard.html'));
 });
@@ -50,8 +56,6 @@ app.get('/bookings', (req, res) => {
 app.get('/services', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'services.html'));
 });
-
-
 
 // 📁 3. Static Files Middleware
 app.use(express.static('public'));

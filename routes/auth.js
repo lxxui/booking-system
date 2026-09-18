@@ -1,5 +1,6 @@
-/* eslint-env node */
-const express = require('express');
+import express from 'express';
+import process from 'node:process';
+
 const router = express.Router();
 
 // POST /api/auth/login - ตรวจสอบรหัสผ่าน Admin
@@ -26,4 +27,4 @@ router.post('/login', (req, res) => {
   }
 });
 
-module.exports = router;
+export default router;

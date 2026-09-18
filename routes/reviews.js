@@ -1,6 +1,7 @@
-const express = require('express');
+import express from 'express';
+import supabase from '../config/supabase.js';
+
 const router = express.Router();
-const supabase = require('../config/supabase');
 
 // 1. ดึงรายการรีวิวทั้งหมด พร้อมชื่อบริการ (GET /api/reviews)
 router.get('/', async (req, res) => {
@@ -29,20 +30,21 @@ router.post('/', async (req, res) => {
   }
 
   try {
-    let finalTags = Array.isArray(tags) ? [...tags] : [];
+    const finalTags = Array.isArray(tags) ? [...tags] : [];
     let cleanComment = comment ? String(comment).trim() : '';
 
     // กรณีมี Tag ปะปนมาใน comment ในรูปแบบ [...] (เช่น [⚡ ตรงเวลา] ข้อความ...)
-    // ทำการสกัดแท็กย้ายเข้า finalTags และลบออกจาก cleanComment
     if (cleanComment) {
-      const tagRegex = /\[(.*?)\]/g;
-      let match;
-      while ((match = tagRegex.exec(cleanComment)) !== null) {
-        if (match[1] && !finalTags.includes(match[1])) {
-          finalTags.push(match[1]);
-        }
+      const tagMatches = cleanComment.match(/\[(.*?)\]/g);
+      if (tagMatches) {
+        tagMatches.forEach(tagStr => {
+          const extractedTag = tagStr.slice(1, -1).trim();
+          if (extractedTag && !finalTags.includes(extractedTag)) {
+            finalTags.push(extractedTag);
+          }
+        });
       }
-      cleanComment = cleanComment.replace(tagRegex, '').trim();
+      cleanComment = cleanComment.replace(/\[(.*?)\]/g, '').trim();
     }
 
     const { data, error } = await supabase
@@ -64,4 +66,4 @@ router.post('/', async (req, res) => {
   }
 });
 
-module.exports = router;
+export default router;
