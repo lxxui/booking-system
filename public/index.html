@@ -38,8 +38,13 @@
 
         /* ----- Marquee ----- */
         @keyframes marquee {
-            0% { transform: translateX(0%); }
-            100% { transform: translateX(-50%); }
+            0% {
+                transform: translateX(0%);
+            }
+
+            100% {
+                transform: translateX(-50%);
+            }
         }
 
         .animate-marquee {
@@ -69,8 +74,13 @@
             background: var(--notch-color, var(--bone));
         }
 
-        .stub-line::before { left: -9px; }
-        .stub-line::after { right: -9px; }
+        .stub-line::before {
+            left: -9px;
+        }
+
+        .stub-line::after {
+            right: -9px;
+        }
 
         .stub-card {
             --notch-color: var(--bone);
@@ -92,18 +102,25 @@
             z-index: 10;
         }
 
-        .ticket-notch-left { left: -11px; }
-        .ticket-notch-right { right: -11px; }
+        .ticket-notch-left {
+            left: -11px;
+        }
+
+        .ticket-notch-right {
+            right: -11px;
+        }
     </style>
 </head>
 
 <body class="antialiased">
 
     <!-- Navbar -->
-    <nav class="fixed top-0 left-0 right-0 bg-[rgba(251,248,242,0.9)] backdrop-blur-md z-50 border-b border-[rgba(23,21,18,0.1)]">
+    <nav
+        class="fixed top-0 left-0 right-0 bg-[rgba(251,248,242,0.9)] backdrop-blur-md z-50 border-b border-[rgba(23,21,18,0.1)]">
         <div class="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
             <div class="flex items-center gap-2.5 font-display font-semibold text-lg text-[var(--ink)]">
-                <span class="w-8 h-8 rounded-full border-2 border-dashed border-[var(--brass)] text-[var(--brass)] flex items-center justify-center text-xs font-sans font-bold">01</span>
+                <span
+                    class="w-8 h-8 rounded-full border-2 border-dashed border-[var(--brass)] text-[var(--brass)] flex items-center justify-center text-xs font-sans font-bold">01</span>
                 BookingStudio
             </div>
             <div class="hidden md:flex items-center gap-8 text-sm font-medium text-[var(--ink-soft)]">
@@ -124,12 +141,14 @@
 
             <!-- ซ้าย: ข้อความหลัก -->
             <div class="space-y-7">
-                <span class="text-xs font-medium text-[var(--brass)] tracking-wide">จองคิวบริการล่วงหน้า ไม่ต้องรอหน้าร้าน</span>
+                <span class="text-xs font-medium text-[var(--brass)] tracking-wide">จองคิวบริการล่วงหน้า
+                    ไม่ต้องรอหน้าร้าน</span>
                 <h1 class="font-display text-4xl md:text-5xl font-semibold leading-[1.6] text-[var(--paper)]">
                     เลือกวัน เลือกเวลา<br>รับบัตรคิวของคุณ<br>ในไม่กี่วินาที
                 </h1>
                 <p class="text-[rgba(251,248,242,0.7)] text-base max-w-md leading-relaxed">
-                    ดูแพ็กเกจ เลือกรอบเวลาที่ว่าง แล้วกรอกชื่อกับเบอร์โทร ระบบจะออกหมายเลขจองให้ทันทีเพื่อใช้ตรวจสอบสถานะภายหลัง
+                    ดูแพ็กเกจ เลือกรอบเวลาที่ว่าง แล้วกรอกชื่อกับเบอร์โทร
+                    ระบบจะออกหมายเลขจองให้ทันทีเพื่อใช้ตรวจสอบสถานะภายหลัง
                 </p>
                 <div class="flex flex-wrap gap-4 pt-2">
                     <a href="#booking-form"
@@ -209,11 +228,11 @@
     <!-- Modal สำหรับส่งรีวิวใหม่ -->
     <div id="reviewModal"
         class="fixed inset-0 bg-[rgba(23,21,18,0.5)] backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
-        <div
-            class="bg-[var(--paper)] rounded-2xl max-w-md w-full p-6 shadow-xl space-y-4 max-h-[90vh] overflow-y-auto">
+        <div class="bg-[var(--paper)] rounded-2xl max-w-md w-full p-6 shadow-xl space-y-4 max-h-[90vh] overflow-y-auto">
             <div class="flex justify-between items-center">
                 <h3 class="font-display font-semibold text-[var(--ink)] text-base">เขียนรีวิวบริการ</h3>
-                <button onclick="closeReviewModal()" class="text-[var(--ink-soft)] hover:text-[var(--ink)] text-lg">✕</button>
+                <button onclick="closeReviewModal()"
+                    class="text-[var(--ink-soft)] hover:text-[var(--ink)] text-lg">✕</button>
             </div>
 
             <form id="reviewForm" onsubmit="submitReview(event)" class="space-y-3.5">
@@ -374,14 +393,16 @@
         </div>
     </section>
 
-    <footer class="py-6 text-center text-xs text-[rgba(251,248,242,0.4)] bg-[var(--ink)] border-t border-[rgba(251,248,242,0.1)]">
+    <footer
+        class="py-6 text-center text-xs text-[rgba(251,248,242,0.4)] bg-[var(--ink)] border-t border-[rgba(251,248,242,0.1)]">
         © 2026 BookingStudio. All rights reserved. (Portfolio Project)
     </footer>
 
     <!-- ปุ่มลอยมุมขวาล่าง -->
     <button type="button" onclick="openStatusModal()"
         class="fixed bottom-6 right-6 z-40 flex items-center gap-2.5 pl-4 pr-5 py-3 bg-[var(--ink)] hover:bg-[var(--moss-dark)] text-[var(--paper)] rounded-full shadow-2xl border border-[rgba(251,248,242,0.1)] transition-all duration-300 hover:scale-105 active:scale-95">
-        <span class="w-7 h-7 rounded-full border-2 border-dashed border-[var(--brass)] flex items-center justify-center text-[10px] font-bold text-[var(--brass)]">?</span>
+        <span
+            class="w-7 h-7 rounded-full border-2 border-dashed border-[var(--brass)] flex items-center justify-center text-[10px] font-bold text-[var(--brass)]">?</span>
         <span class="text-xs font-semibold">ตรวจสอบสถานะการจอง</span>
     </button>
 
@@ -402,7 +423,7 @@
 
             <!-- ฟอร์มค้นหา -->
             <div class="flex gap-2">
-                <input type="text" id="searchInput" placeholder="กรอกเบอร์โทรศัพท์" maxlength="10"
+                <input type="text" id="searchInput" placeholder="กรอกเบอร์โทรศัพท์ / หมายเลขการจอง" maxlength="10"
                     class="w-full px-3.5 py-2.5 bg-white border border-[rgba(23,21,18,0.15)] rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-[rgba(75,93,70,0.2)] focus:border-[var(--moss)] transition">
                 <button onclick="checkBookingStatus()"
                     class="px-4 py-2.5 bg-[var(--moss)] hover:bg-[var(--moss-dark)] text-[var(--paper)] text-xs font-semibold rounded-xl transition whitespace-nowrap">
@@ -418,6 +439,8 @@
     <script>
         const API_URL = '/api';
         let selectedSlotId = null;
+        let selectedBtnElement = null;
+        let selectedTags = [];
 
         // 1. ดึงบริการมาสร้าง Package Cards + Dropdown
         async function fetchServices() {
@@ -428,7 +451,7 @@
                 const res = await fetch(`${API_URL}/services`);
                 const result = await res.json();
 
-                const isSuccess = result.status === 'success' || result.success === true;
+                const isSuccess = result.status === 'success' || result.success === true || res.ok;
                 const servicesList = result.data || result;
 
                 if (res.ok && isSuccess && Array.isArray(servicesList)) {
@@ -444,20 +467,20 @@
                         select.innerHTML += `<option value="${s.id}">${s.service_name} • (฿${Number(s.price).toLocaleString()})</option>`;
 
                         cardsContainer.innerHTML += `
-            <div class="bg-[var(--paper)] p-6 rounded-2xl border border-[rgba(23,21,18,0.1)] flex flex-col justify-between hover:shadow-lg transition">
-              <div>
-                <h3 class="font-display font-semibold text-[var(--ink)] text-lg mb-1">${s.service_name}</h3>
-                <p class="text-xs text-[var(--ink-soft)] mb-5">ระยะเวลาให้บริการ ${s.duration_minutes} นาที</p>
-                <div class="stub-line stub-card pt-4 flex items-baseline justify-between">
-                  <span class="text-[11px] text-[var(--ink-soft)]">ราคา</span>
-                  <p class="text-2xl font-bold text-[var(--brass)]">฿${Number(s.price).toLocaleString()}</p>
-                </div>
-              </div>
-              <a href="#booking-form" onclick="selectService(${s.id})" class="mt-6 w-full py-2.5 bg-[var(--bone)] hover:bg-[var(--moss)] hover:text-[var(--paper)] text-[var(--ink)] rounded-full text-center text-xs font-semibold transition">
-                เลือกแพ็กเกจนี้
-              </a>
-            </div>
-          `;
+                        <div class="bg-[var(--paper)] p-6 rounded-2xl border border-[rgba(23,21,18,0.1)] flex flex-col justify-between hover:shadow-lg transition">
+                          <div>
+                            <h3 class="font-display font-semibold text-[var(--ink)] text-lg mb-1">${s.service_name}</h3>
+                            <p class="text-xs text-[var(--ink-soft)] mb-5">ระยะเวลาให้บริการ ${s.duration_minutes} นาที</p>
+                            <div class="stub-line stub-card pt-4 flex items-baseline justify-between">
+                              <span class="text-[11px] text-[var(--ink-soft)]">ราคา</span>
+                              <p class="text-2xl font-bold text-[var(--brass)]">฿${Number(s.price).toLocaleString()}</p>
+                            </div>
+                          </div>
+                          <a href="#booking-form" onclick="selectService(${s.id})" class="mt-6 w-full py-2.5 bg-[var(--bone)] hover:bg-[var(--moss)] hover:text-[var(--paper)] text-[var(--ink)] rounded-full text-center text-xs font-semibold transition">
+                            เลือกแพ็กเกจนี้
+                          </a>
+                        </div>
+                    `;
                     });
                 } else {
                     throw new Error(result.message || 'โครงสร้างข้อมูลไม่ถูกต้อง');
@@ -470,15 +493,15 @@
             }
         }
 
-        // 2. ดึง Slots มาแสดงเป็นปุ่มกด (แยกตามวันที่)
+        // 2. ดึง Slots มาแสดงเป็นปุ่มกด
         async function fetchCustomerSlots() {
             const container = document.getElementById('slotsContainer');
             try {
                 const res = await fetch(`${API_URL}/slots`);
                 const result = await res.json();
 
-                const slots = result.data || [];
-                const isSuccess = result.success || result.status === 'success';
+                const slots = result.data || (Array.isArray(result) ? result : []);
+                const isSuccess = result.success || result.status === 'success' || res.ok;
 
                 if (res.ok && isSuccess && slots.length > 0) {
                     container.className = "grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3";
@@ -494,37 +517,33 @@
 
                         const startTime = startObj.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit', hour12: false });
                         const endTime = endObj.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit', hour12: false });
-                        const isFull = slot.capacity <= 0;
+                        const isFull = Number(slot.capacity) <= 0;
 
                         container.innerHTML += `
-                    <button type="button" 
-                        onclick="selectSlot('${slot.id}', this)"
-                        data-slots="${slot.capacity}"
-                        ${isFull ? 'disabled' : ''}
-                        class="slot-btn relative p-3 border rounded-2xl text-center transition-all flex flex-col items-center justify-between gap-2 group
-                        ${isFull
+                        <button type="button" 
+                            onclick="selectSlot('${slot.id}', this)"
+                            data-slots="${slot.capacity}"
+                            ${isFull ? 'disabled' : ''}
+                            class="slot-btn relative p-3 border rounded-2xl text-center transition-all flex flex-col items-center justify-between gap-2 group
+                            ${isFull
                                 ? 'bg-[rgba(23,21,18,0.05)] border-[rgba(23,21,18,0.1)] opacity-50 cursor-not-allowed'
                                 : 'bg-white border-[rgba(23,21,18,0.1)] hover:border-[var(--moss)] hover:shadow-md active:scale-95'}"
-                    >
-                        <!-- ส่วนวันที่ -->
-                        <div class="flex flex-col items-center leading-tight">
-                            <span class="text-[10px] font-medium text-[var(--ink-soft)]">${dayName}</span>
-                            <span class="font-display text-base font-bold text-[var(--ink)]">${dateNum} ${monthName}</span>
-                        </div>
+                        >
+                            <div class="flex flex-col items-center leading-tight">
+                                <span class="text-[10px] font-medium text-[var(--ink-soft)]">${dayName}</span>
+                                <span class="font-display text-base font-bold text-[var(--ink)]">${dateNum} ${monthName}</span>
+                            </div>
 
-                        <!-- เส้นปรุคั่นวันที่กับเวลา -->
-                        <div class="stub-line stub-card w-full pt-2">
-                            <span class="text-xs font-bold text-[var(--ink)] block text-center">${startTime} - ${endTime}</span>
-                        </div>
+                            <div class="stub-line stub-card w-full pt-2">
+                                <span class="text-xs font-bold text-[var(--ink)] block text-center">${startTime} - ${endTime}</span>
+                            </div>
 
-                        <!-- ส่วนสถานะคิว -->
-                        <span class="slot-count text-[10px] px-2.5 py-0.5 rounded-full font-bold ${isFull ? 'bg-[rgba(201,123,108,0.15)] text-[var(--rose)]' : 'bg-[rgba(75,93,70,0.1)] text-[var(--moss)]'}">
-                            ${isFull ? 'เต็มแล้ว' : `ว่าง ${slot.capacity} คิว`}
-                        </span>
-                    </button>
-                `;
+                            <span class="slot-count text-[10px] px-2.5 py-0.5 rounded-full font-bold ${isFull ? 'bg-[rgba(201,123,108,0.15)] text-[var(--rose)]' : 'bg-[rgba(75,93,70,0.1)] text-[var(--moss)]'}">
+                                ${isFull ? 'เต็มแล้ว' : `ว่าง ${slot.capacity} คิว`}
+                            </span>
+                        </button>
+                    `;
                     });
-
                 } else {
                     container.className = "";
                     container.innerHTML = `<div class="text-center py-6 text-xs text-[var(--ink-soft)]">ยังไม่มีรอบเวลาเปิดให้จองในขณะนี้</div>`;
@@ -536,14 +555,12 @@
             }
         }
 
-        // เลือกบริการจาก Package Card
+        // เลือกบริการจาก Card
         function selectService(id) {
             document.getElementById('serviceSelect').value = id;
         }
 
         // เลือก Slot
-        let selectedBtnElement = null;
-
         function selectSlot(slotId, btnElement) {
             const availableSlots = parseInt(btnElement.dataset.slots || btnElement.getAttribute('data-slots') || '1', 10);
 
@@ -580,7 +597,7 @@
             }
         }
 
-        // ฟังก์ชันช่วยลดจำนวนคิวบน UI ปุ่มที่เลือก (เรียกใช้ตอนจองสำเร็จ)
+        // อัปเดต UI คิวที่เลือกเมื่อจองสำเร็จ
         function updateSelectedSlotUI() {
             if (!selectedBtnElement) return;
 
@@ -591,11 +608,13 @@
                 let currentCount = parseInt(match[0], 10);
                 if (currentCount > 0) {
                     let newCount = currentCount - 1;
-                    countBadge.innerText = `ว่าง ${newCount} คิว`;
+                    countBadge.innerText = newCount === 0 ? 'เต็มแล้ว' : `ว่าง ${newCount} คิว`;
+                    selectedBtnElement.setAttribute('data-slots', newCount);
 
                     if (newCount === 0) {
                         selectedBtnElement.disabled = true;
                         selectedBtnElement.classList.add('opacity-50', 'cursor-not-allowed');
+                        countBadge.className = 'slot-count text-[10px] px-2.5 py-0.5 rounded-full font-bold bg-[rgba(201,123,108,0.15)] text-[var(--rose)]';
                     }
                 }
             }
@@ -631,14 +650,17 @@
                 const result = await res.json();
 
                 if (res.ok && (result.status === 'success' || result.success === true)) {
-                    const bookingId = result.data ? result.data.id : 'N/A';
+                    const bookingId = result.data ? (result.data.booking_code || result.data.id) : 'N/A';
 
-                    showSuccessAlert(bookingId);
+                    // ส่งเบอร์โทรศัพท์เข้าฟังก์ชันแจ้งเตือนสำเร็จ
+                    showSuccessAlert(bookingId, phone);
                     updateSelectedSlotUI();
 
                     document.getElementById('publicBookingForm').reset();
                     selectedSlotId = null;
-                    document.getElementById('submitBookingBtn').disabled = true;
+                    const submitBtn = document.getElementById('submitBookingBtn');
+                    if (submitBtn) submitBtn.disabled = true;
+
                     fetchCustomerSlots();
                 } else {
                     showAlert(result.message || 'เกิดข้อผิดพลาดในการจอง', 'error');
@@ -649,9 +671,10 @@
             }
         });
 
-        // แจ้งเตือนทั่วไป (Error)
+        // แจ้งเตือนทั่วไป
         function showAlert(msg, type) {
             const box = document.getElementById('alertBox');
+            if (!box) return;
             box.classList.remove('hidden');
             box.className = `p-4 rounded-xl text-sm font-medium border text-center ${type === 'success'
                 ? 'bg-[rgba(75,93,70,0.1)] border-[rgba(75,93,70,0.3)] text-[var(--moss-dark)]'
@@ -660,21 +683,21 @@
             box.textContent = msg;
         }
 
-        // แจ้งเตือนจองสำเร็จ (พร้อมปุ่มลิงก์เช็กสถานะ)
-        function showSuccessAlert(bookingId) {
+        // แจ้งเตือนจองสำเร็จ
+        function showSuccessAlert(bookingCode, customerPhone) {
             Swal.fire({
                 title: 'จองคิวสำเร็จแล้ว!',
                 html: `
-            <div class="space-y-3 pt-2">
-                <p class="text-sm text-slate-600">
-                    หมายเลขการจองของคุณคือ: 
-                    <span class="font-extrabold text-base" style="color:#B9915B">#BK-${bookingId}</span>
-                </p>
-                <p class="text-xs text-slate-400">
-                    ระบบได้บันทึกข้อมูลการจองเรียบร้อยแล้ว
-                </p>
-            </div>
-        `,
+                <div class="space-y-3 pt-2">
+                    <p class="text-sm text-slate-600">
+                        หมายเลขการจองของคุณคือ: 
+                        <span class="font-extrabold text-base" style="color:#B9915B">${bookingCode.startsWith('BK-') ? bookingCode : '#BK-' + bookingCode}</span>
+                    </p>
+                    <p class="text-xs text-slate-400">
+                        ระบบได้บันทึกข้อมูลการจองเรียบร้อยแล้ว
+                    </p>
+                </div>
+            `,
                 icon: 'success',
                 confirmButtonText: 'ตรวจสอบสถานะการจอง',
                 confirmButtonColor: '#4B5D46',
@@ -694,7 +717,7 @@
 
                     const searchInput = document.getElementById('searchInput');
                     if (searchInput) {
-                        searchInput.value = bookingId;
+                        searchInput.value = customerPhone; // วางเบอร์โทรศัพท์ค้นหาโดยตรง
                         if (typeof checkBookingStatus === 'function') {
                             checkBookingStatus();
                         }
@@ -703,52 +726,62 @@
             });
 
             const box = document.getElementById('alertBox');
-            if (box) {
-                box.classList.add('hidden');
-            }
+            if (box) box.classList.add('hidden');
         }
 
-        // เรียกโหลดข้อมูลเมื่อเริ่มต้นโหลดหน้าเว็บ
-        fetchServices();
-        fetchCustomerSlots();
-
-        // เปิด-ปิด status Modal
-        function openStatusModal(bookingId = '') {
+        // Modal ตรวจสอบสถานะ
+        function openStatusModal(phone = '') {
             const modal = document.getElementById('statusModal');
-            modal.classList.remove('hidden');
+            if (modal) modal.classList.remove('hidden');
 
-            if (bookingId) {
-                document.getElementById('searchInput').value = bookingId;
+            if (phone) {
+                const searchInput = document.getElementById('searchInput');
+                if (searchInput) searchInput.value = phone;
                 checkBookingStatus();
             }
         }
 
         function closeStatusModal() {
-            document.getElementById('statusModal').classList.add('hidden');
+            const modal = document.getElementById('statusModal');
+            if (modal) modal.classList.add('hidden');
             document.getElementById('searchInput').value = '';
-            document.getElementById('modalStatusResult').classList.add('hidden');
+            const resultBox = document.getElementById('modalStatusResult');
+            if (resultBox) resultBox.classList.add('hidden');
         }
 
-        // ค้นหาและแสดงผลสถานะแบบละเอียด
+        // ค้นหาและแสดงผลสถานะ (ค้นหาด้วยเบอร์โทรศัพท์สมบูรณ์ 9-10 หลักเท่านั้น)
         async function checkBookingStatus() {
-            const query = document.getElementById('searchInput').value.trim();
+            const rawQuery = document.getElementById('searchInput').value.trim();
             const resultBox = document.getElementById('modalStatusResult');
 
-            if (!query) return;
+            if (!rawQuery || !resultBox) return;
 
             resultBox.classList.remove('hidden');
             resultBox.className = 'p-4 rounded-2xl bg-[var(--bone)] text-center text-[var(--ink-soft)]';
             resultBox.innerHTML = 'กำลังค้นหาข้อมูล...';
 
+            // 1. Clean ข้อมูล: ตัดอักขระพิเศษ ให้เหลือเฉพาะตัวเลข
+            const cleanPhoneQuery = rawQuery.replace(/[^0-9]/g, '');
+
+            // 2. ตรวจสอบว่าต้องเป็นเบอร์โทรศัพท์ 9-10 หลักเท่านั้น (ถ้าพิมพ์เลขสั้นๆ เช่น ID "29" จะไม่ค้นหา)
+            if (!cleanPhoneQuery || cleanPhoneQuery.length < 9 || cleanPhoneQuery.length > 10) {
+                resultBox.className = 'p-4 rounded-2xl bg-[rgba(201,123,108,0.1)] text-center text-[var(--rose)] font-medium text-xs';
+                resultBox.innerHTML = 'กรุณากรอกเบอร์โทรศัพท์ให้ถูกต้อง (ตัวเลข 9-10 หลัก)';
+                return;
+            }
+
             try {
                 const res = await fetch(`${API_URL}/bookings`);
                 const result = await res.json();
-                const list = result.data || result;
+                const list = result.data || (Array.isArray(result) ? result : []);
 
-                const item = list.find(b => String(b.id) === query || b.phone === query);
+                // 3. ค้นหาเฉพาะเบอร์โทรศัพท์ที่ตรงกันทั้งหมดแบบ Exact Match เท่านั้น (ลบ .includes ออก)
+                const item = list.find(b => {
+                    const phone = String(b.phone || b.customer_phone || '').replace(/[^0-9]/g, '');
+                    return phone === cleanPhoneQuery;
+                });
 
                 if (item) {
-                    // 1. Badge สถานะ
                     let statusBadge = '';
                     if (item.status === 'confirmed') {
                         statusBadge = '<span class="bg-[rgba(75,93,70,0.1)] text-[var(--moss-dark)] px-2.5 py-1 rounded-full text-[11px] font-bold">ยืนยันแล้ว</span>';
@@ -758,7 +791,6 @@
                         statusBadge = '<span class="bg-[rgba(185,145,91,0.15)] text-[var(--brass)] px-2.5 py-1 rounded-full text-[11px] font-bold">รอยืนยัน</span>';
                     }
 
-                    // 2. เวลาของ Slot
                     let slotTimeString = 'ไม่ระบุรอบเวลา';
                     if (item.slots || item.slot) {
                         const slotData = item.slots || item.slot;
@@ -773,17 +805,16 @@
                         slotTimeString = `Slot ID: ${item.slot_id}`;
                     }
 
-                    // 3. ชื่อบริการและราคา
                     const serviceName = item.services?.service_name || item.service?.service_name || (item.service_id ? `บริการรหัส #${item.service_id}` : 'บริการทั่วไป');
                     const servicePrice = item.services?.price || item.service?.price ? `฿${Number(item.services?.price || item.service?.price).toLocaleString()}` : '';
+                    const displayCode = item.booking_code ? item.booking_code : `#BK-${item.id}`;
 
-                    // 4. การ์ดข้อมูลแบบละเอียด (สไตล์บัตรคิว)
                     resultBox.className = 'relative p-4 rounded-2xl bg-white border border-[rgba(23,21,18,0.1)] shadow-sm text-left space-y-3';
                     resultBox.innerHTML = `
                 <div class="flex justify-between items-center stub-line stub-card pb-2.5" style="border-top:none">
                     <div>
                         <span class="text-[10px] text-[var(--ink-soft)] font-bold block">หมายเลขการจอง</span>
-                        <span class="font-display font-bold text-[var(--ink)] text-sm">#BK-${item.id}</span>
+                        <span class="font-display font-bold text-[var(--ink)] text-sm">${displayCode}</span>
                     </div>
                     ${statusBadge}
                 </div>
@@ -795,7 +826,7 @@
                     </div>
                     <div>
                         <span class="text-[var(--ink-soft)] block text-[10px]">เบอร์โทรศัพท์</span>
-                        <span class="font-semibold text-[var(--ink)]">${item.phone}</span>
+                        <span class="font-semibold text-[var(--ink)]">${item.phone || item.customer_phone}</span>
                     </div>
                 </div>
 
@@ -818,7 +849,7 @@
             `;
                 } else {
                     resultBox.className = 'p-4 rounded-2xl bg-[rgba(201,123,108,0.1)] text-center text-[var(--rose)] font-medium text-xs';
-                    resultBox.innerHTML = 'ไม่พบข้อมูลการจองนี้ กรุณาตรวจสอบ ID หรือ เบอร์โทรศัพท์';
+                    resultBox.innerHTML = 'ไม่พบข้อมูลการจอง กรุณาตรวจสอบเบอร์โทรศัพท์อีกครั้ง';
                 }
             } catch (err) {
                 console.error('checkBookingStatus error:', err);
@@ -826,21 +857,31 @@
                 resultBox.innerHTML = 'เกิดข้อผิดพลาดในการดึงข้อมูลการจอง';
             }
         }
-
-        document.getElementById('searchInput').addEventListener('keypress', function (e) {
-            if (e.key === 'Enter') {
-                e.preventDefault();
-                checkBookingStatus();
+        // Event Listener ตอนกด Enter ค้นหา
+        document.addEventListener('DOMContentLoaded', () => {
+            const searchInput = document.getElementById('searchInput');
+            if (searchInput) {
+                searchInput.addEventListener('keypress', function (e) {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        checkBookingStatus();
+                    }
+                });
             }
+            fetchServices();
+            fetchCustomerSlots();
+            fetchReviews();
         });
 
-        // ดึงข้อมูลรีวิวจาก API มาแสดง
+        // ดึงข้อมูลรีวิว
         async function fetchReviews() {
             const container = document.getElementById('reviewsContainer');
+            if (!container) return;
+
             try {
                 const res = await fetch(`${API_URL}/reviews`);
                 const result = await res.json();
-                const reviews = result.data || [];
+                const reviews = result.data || (Array.isArray(result) ? result : []);
 
                 if (res.ok && reviews.length > 0) {
                     const createCardHTML = (item) => {
@@ -863,25 +904,25 @@
 
                         const tagsHTML = extractedTags.length > 0
                             ? `<div class="flex flex-wrap gap-1.5 pt-0.5">
-                        ${extractedTags.map(tag => `<span class="text-[10px] bg-white/10 text-[rgba(251,248,242,0.8)] px-2 py-0.5 rounded-md font-medium">${tag}</span>`).join('')}
-                       </div>`
+                            ${extractedTags.map(tag => `<span class="text-[10px] bg-white/10 text-[rgba(251,248,242,0.8)] px-2 py-0.5 rounded-md font-medium">${tag}</span>`).join('')}
+                           </div>`
                             : '';
 
                         return `
-                    <div class="w-[300px] md:w-[350px] shrink-0 bg-[var(--paper)] text-[var(--ink)] p-5 rounded-2xl shadow-sm flex flex-col justify-between space-y-3">
-                        <div class="space-y-2.5">
-                            <div class="flex items-center justify-between gap-2">
-                                <div class="text-[var(--rose)] text-xs tracking-wider">${stars}</div>
-                                ${serviceName ? `<span class="text-[10px] font-medium bg-[rgba(75,93,70,0.1)] text-[var(--moss-dark)] px-2 py-0.5 rounded-md">${serviceName}</span>` : ''}
+                        <div class="w-[300px] md:w-[350px] shrink-0 bg-[var(--paper)] text-[var(--ink)] p-5 rounded-2xl shadow-sm flex flex-col justify-between space-y-3">
+                            <div class="space-y-2.5">
+                                <div class="flex items-center justify-between gap-2">
+                                    <div class="text-[var(--rose)] text-xs tracking-wider">${stars}</div>
+                                    ${serviceName ? `<span class="text-[10px] font-medium bg-[rgba(75,93,70,0.1)] text-[var(--moss-dark)] px-2 py-0.5 rounded-md">${serviceName}</span>` : ''}
+                                </div>
+                                ${cleanComment ? `<p class="text-[var(--ink-soft)] text-xs leading-relaxed line-clamp-3">"${cleanComment}"</p>` : ''}
                             </div>
-                            ${cleanComment ? `<p class="text-[var(--ink-soft)] text-xs leading-relaxed line-clamp-3">"${cleanComment}"</p>` : ''}
+                            <div class="stub-line stub-card pt-2.5">
+                              ${tagsHTML}
+                              <div class="font-semibold text-[11px] text-[var(--ink)] pt-2">— คุณ${item.name}</div>
+                            </div>
                         </div>
-                        <div class="stub-line stub-card pt-2.5">
-                          ${tagsHTML}
-                          <div class="font-semibold text-[11px] text-[var(--ink)] pt-2">— คุณ${item.name}</div>
-                        </div>
-                    </div>
-                `;
+                    `;
                     };
 
                     const originalCardsHTML = reviews.map(item => createCardHTML(item)).join('');
@@ -905,22 +946,24 @@
             }
         }
 
-        // ดึงรายชื่อ Services มาใส่ใน Dropdown ของฟอร์มรีวิว
+        // ดึงรายชื่อ Services เข้า Dropdown รีวิว
         async function fetchServicesOptions() {
             const selectEl = document.getElementById('reviewService');
+            if (!selectEl) return;
+
             try {
                 const res = await fetch(`${API_URL}/services`);
                 const result = await res.json();
-                const services = result.data || [];
+                const services = result.data || (Array.isArray(result) ? result : []);
 
                 if (res.ok && services.length > 0) {
                     selectEl.innerHTML = '<option value="" disabled selected>-- เลือกแพ็กเกจที่ใช้บริการ --</option>';
                     services.forEach(service => {
                         selectEl.innerHTML += `
-                    <option value="${service.id}">
-                        ${service.service_name} (${service.duration_minutes} นาที) - ${parseFloat(service.price).toLocaleString()} บาท
-                    </option>
-                `;
+                        <option value="${service.id}">
+                            ${service.service_name} (${service.duration_minutes} นาที) - ${parseFloat(service.price).toLocaleString()} บาท
+                        </option>
+                    `;
                     });
                 } else {
                     selectEl.innerHTML = '<option value="" disabled selected>ไม่พบรายการแพ็กเกจ</option>';
@@ -931,16 +974,18 @@
             }
         }
 
-        // เปิด Modal รีวิว
+        // Modal รีวิว
         function openReviewModal() {
-            document.getElementById('reviewModal').classList.remove('hidden');
+            const modal = document.getElementById('reviewModal');
+            if (modal) modal.classList.remove('hidden');
             fetchServicesOptions();
         }
 
-        // ปิด Modal รีวิว + เคลียร์ state
         function closeReviewModal() {
-            document.getElementById('reviewModal').classList.add('hidden');
-            document.getElementById('reviewForm').reset();
+            const modal = document.getElementById('reviewModal');
+            if (modal) modal.classList.add('hidden');
+            const form = document.getElementById('reviewForm');
+            if (form) form.reset();
             selectedTags = [];
             document.querySelectorAll('.tag-btn').forEach(btn => {
                 btn.classList.remove('bg-[rgba(75,93,70,0.1)]', 'text-[var(--moss-dark)]', 'border-[rgba(75,93,70,0.4)]', 'font-semibold');
@@ -948,9 +993,7 @@
             });
         }
 
-        let selectedTags = [];
-
-        // เลือก/ยกเลิก Tag
+        // เลือก / ยกเลิก Tag
         function toggleTag(btnElement, tagValue) {
             const index = selectedTags.indexOf(tagValue);
 
@@ -965,12 +1008,12 @@
             }
         }
 
-        // รวม Tags และ Comment ก่อนส่งไปหลังบ้าน แล้วส่งรีวิว
+        // ส่งรีวิว
         async function submitReview(e) {
             e.preventDefault();
             const name = document.getElementById('reviewerName').value;
             const serviceId = document.getElementById('reviewService').value;
-            const rating = parseInt(document.getElementById('reviewRating').value);
+            const rating = parseInt(document.getElementById('reviewRating').value, 10);
             const customComment = document.getElementById('reviewComment').value.trim();
 
             if (selectedTags.length === 0 && !customComment) {
@@ -1013,9 +1056,6 @@
                 console.error('submitReview error:', err);
             }
         }
-
-        // เรียกใช้งานเมื่อโหลดหน้าเว็บ
-        document.addEventListener('DOMContentLoaded', fetchReviews);
     </script>
 </body>
 

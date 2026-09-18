@@ -2,6 +2,16 @@ const express = require('express');
 const router = express.Router();
 const supabase = require('../config/supabase');
 
+// ฟังก์ชันสำหรับสร้างรหัสจองแบบสุ่ม (เช่น BK-7K9A2X)
+function generateBookingCode() {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    let randomStr = '';
+    for (let i = 0; i < 6; i++) {
+        randomStr += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return `BK-${randomStr}`;
+}
+
 // ==========================================================
 // 1. ดึงรายการจองทั้งหมด (GET /api/bookings)
 // ==========================================================
@@ -29,23 +39,28 @@ router.get('/', async (req, res) => {
 });
 
 // ==========================================================
-// 2. ค้นหารายการจองด้วย ID หรือ Phone (GET /api/bookings/search)
+// 2. ค้นหารายการจองด้วย Phone เท่านั้น (GET /api/bookings/search)
 // ==========================================================
 router.get('/search', async (req, res) => {
     try {
         const { query } = req.query;
 
         if (!query || query.trim() === '') {
-            return res.status(400).json({ status: 'error', message: 'กรุณาระบุหมายเลขการจองหรือเบอร์โทรศัพท์' });
+            return res.status(400).json({ status: 'error', message: 'กรุณาระบุหมายเลขเบอร์โทรศัพท์' });
         }
 
-        const cleanedQuery = query.trim();
-        const isNumeric = !isNaN(cleanedQuery);
+        // Clean ข้อมูล: ตัดขีด (-) ช่องว่าง หรือตัวอักษรออก ให้เหลือเฉพาะตัวเลข
+        const cleanPhone = query.trim().replace(/[^0-9]/g, '');
 
+        if (!cleanPhone) {
+            return res.status(400).json({ status: 'error', message: 'รูปแบบเบอร์โทรศัพท์ไม่ถูกต้อง' });
+        }
+
+        // ค้นหาเจาะจงเฉพาะคอลัมน์ customer_phone
         const { data, error } = await supabase
             .from('bookings')
             .select('*, services(service_name, price), slots(start_time, end_time)')
-            .or(`id.eq.${isNumeric ? cleanedQuery : 0},customer_phone.eq.${cleanedQuery}`)
+            .eq('customer_phone', cleanPhone)
             .order('id', { ascending: false });
 
         if (error) {
@@ -62,22 +77,19 @@ router.get('/search', async (req, res) => {
 
 // ==========================================================
 // 3. สร้างรายการจองใหม่ (POST /api/bookings)
-// รองรับ Concurrent Bookings, Atomic Decrement & Rollback Safety
 // ==========================================================
 router.post('/', async (req, res) => {
     try {
         const { service_id, slot_id, customer_name, phone, customer_phone, status } = req.body;
-        const inputPhone = phone || customer_phone; // รองรับทั้งสองชื่อ key ที่ส่งมาจาก frontend
+        const inputPhone = phone || customer_phone;
 
-        // Validation - ตรวจสอบข้อมูลนำเข้า
         if (!service_id || !slot_id || !customer_name || !inputPhone) {
             return res.status(400).json({
                 status: 'error',
-                message: 'กรุณากรอกข้อมูลให้ครบถ้วน (ชื่อลูกค้า, เบอร์โทรศัพท์, บริการ, และรอบเวลา)'
+                message: 'กรุณากรอกข้อมูลให้ครบถ้วน'
             });
         }
 
-        // Edge Case Validation: เช็กว่าเบอร์โทรเป็นตัวเลข 9-10 หลัก
         const cleanedPhone = inputPhone.toString().trim();
         if (!/^[0-9]{9,10}$/.test(cleanedPhone)) {
             return res.status(400).json({
@@ -94,52 +106,44 @@ router.post('/', async (req, res) => {
             .single();
 
         if (slotErr || !slot) {
-            return res.status(404).json({
-                status: 'error',
-                message: 'ไม่พบรอบเวลาที่เลือก หรือรอบเวลานี้อาจถูกลบไปแล้ว'
-            });
+            return res.status(404).json({ status: 'error', message: 'ไม่พบรอบเวลาที่เลือก' });
         }
 
         if (slot.capacity <= 0) {
-            return res.status(400).json({
-                status: 'error',
-                message: 'ขออภัย รอบเวลานี้เต็มแล้ว ไม่สามารถจองเพิ่มได้'
-            });
+            return res.status(400).json({ status: 'error', message: 'ขออภัย รอบเวลานี้เต็มแล้ว' });
         }
 
-        // Step 2: Atomic Update - ลบ Capacity ลง 1 แบบปลอดภัยจาก Race Condition
+        // Step 2: Atomic Update - ลบ Capacity ลง 1
         const { data: updatedSlot, error: atomicErr } = await supabase
             .from('slots')
             .update({ capacity: slot.capacity - 1 })
             .eq('id', slot_id)
-            .gt('capacity', 0) // เงื่อนไขสำคัญ: ต้องมี capacity มากกว่า 0
+            .gt('capacity', 0)
             .select();
 
         if (atomicErr || !updatedSlot || updatedSlot.length === 0) {
-            return res.status(409).json({
-                status: 'error',
-                message: 'ขออภัย คิวในรอบเวลานี้เพิ่งถูกจองเต็มไปเมื่อสักครู่ กรุณาเลือกรอบเวลาอื่น'
-            });
+            return res.status(409).json({ status: 'error', message: 'ขออภัย คิวในรอบเวลานี้เพิ่งถูกจองเต็มไปเมื่อสักครู่' });
         }
 
-        // Step 3: บันทึกรายการจองลงตาราง bookings
+        // Step 3: สุ่มรหัส booking_code
+        const bookingCode = generateBookingCode();
         const bookingStatus = status || 'pending';
+
         const { data: bookingData, error: bookingErr } = await supabase
             .from('bookings')
             .insert([{
+                booking_code: bookingCode,
                 service_id: Number(service_id),
                 slot_id: Number(slot_id),
                 customer_name: customer_name.trim(),
-                customer_phone: cleanedPhone, // แมปเข้าคอลัมน์ customer_phone ใน Supabase
+                customer_phone: cleanedPhone,
                 status: bookingStatus
             }])
             .select();
 
-        // Edge Case Handling: ถ้า Insert Booking ล้มเหลว ต้อง Rollback คืนค่า capacity (+1) ให้ slot
+        // Rollback Safety
         if (bookingErr) {
-            console.error('Insert Booking Failed, Rolling back (+1) slot capacity:', bookingErr);
-
-            // ดึงค่าล่าสุดมา +1 ป้องกันการทับคิวของผู้อื่น
+            console.error('Insert Booking Failed, Rolling back slot capacity:', bookingErr);
             const { data: currentSlot } = await supabase
                 .from('slots')
                 .select('capacity')
@@ -153,10 +157,7 @@ router.post('/', async (req, res) => {
                     .eq('id', slot_id);
             }
 
-            return res.status(500).json({
-                status: 'error',
-                message: 'ไม่สามารถบันทึกการจองได้ กรุณาลองใหม่อีกครั้ง'
-            });
+            return res.status(500).json({ status: 'error', message: 'ไม่สามารถบันทึกการจองได้' });
         }
 
         res.status(201).json({
@@ -167,10 +168,7 @@ router.post('/', async (req, res) => {
 
     } catch (err) {
         console.error('Create Booking Unexpected Error:', err);
-        res.status(500).json({
-            status: 'error',
-            message: 'เกิดข้อผิดพลาดที่ไม่คาดคิดในระบบเซิร์ฟเวอร์'
-        });
+        res.status(500).json({ status: 'error', message: 'เกิดข้อผิดพลาดของระบบเซิร์ฟเวอร์' });
     }
 });
 
@@ -184,10 +182,9 @@ router.patch('/:id/status', async (req, res) => {
 
         const validStatuses = ['pending', 'confirmed', 'cancelled'];
         if (!newStatus || !validStatuses.includes(newStatus)) {
-            return res.status(400).json({ status: 'error', message: 'สถานะที่ระบุไม่ถูกต้อง (ต้องเป็น pending, confirmed, หรือ cancelled)' });
+            return res.status(400).json({ status: 'error', message: 'สถานะไม่ถูกต้อง' });
         }
 
-        // 1. ดึงข้อมูลการจองปัจจุบัน
         const { data: currentBooking, error: fetchErr } = await supabase
             .from('bookings')
             .select('slot_id, status')
@@ -195,21 +192,16 @@ router.patch('/:id/status', async (req, res) => {
             .single();
 
         if (fetchErr || !currentBooking) {
-            return res.status(404).json({ status: 'error', message: 'ไม่พบรายการจองนี้ในระบบ' });
+            return res.status(404).json({ status: 'error', message: 'ไม่พบรายการจองนี้' });
         }
 
         const oldStatus = currentBooking.status;
         const slotId = currentBooking.slot_id;
 
         if (oldStatus === newStatus) {
-            return res.json({
-                status: 'success',
-                message: `รายการจอง ID #${id} เป็นสถานะ ${newStatus} อยู่แล้ว`,
-                data: currentBooking
-            });
+            return res.json({ status: 'success', message: 'สถานะไม่มีการเปลี่ยนแปลง', data: currentBooking });
         }
 
-        // 2. อัปเดตสถานะในตาราง bookings
         const { data: updatedBooking, error: updateErr } = await supabase
             .from('bookings')
             .update({ status: newStatus })
@@ -217,11 +209,9 @@ router.patch('/:id/status', async (req, res) => {
             .select();
 
         if (updateErr) {
-            console.error('Update Booking Status Error:', updateErr);
-            return res.status(500).json({ status: 'error', message: 'ไม่สามารถอัปเดตสถานะการจองได้' });
+            return res.status(500).json({ status: 'error', message: 'ไม่สามารถอัปเดตสถานะได้' });
         }
 
-        // 3. ปรับ Capacity ของ Slot ตามสถานะที่เปลี่ยนไป
         const { data: slot } = await supabase
             .from('slots')
             .select('capacity')
@@ -229,29 +219,16 @@ router.patch('/:id/status', async (req, res) => {
             .single();
 
         if (slot) {
-            // หากยกเลิกรายการจองที่เคยอนุมัติ/ยืนยันไว้ -> คืนคิว (capacity + 1)
             if (newStatus === 'cancelled' && oldStatus !== 'cancelled') {
-                await supabase
-                    .from('slots')
-                    .update({ capacity: slot.capacity + 1 })
-                    .eq('id', slotId);
-            }
-            // หากเปลี่ยนจากยกเลิก กลับมาใช้งานต่อ -> ลดคิว (capacity - 1)
-            else if (oldStatus === 'cancelled' && newStatus !== 'cancelled') {
+                await supabase.from('slots').update({ capacity: slot.capacity + 1 }).eq('id', slotId);
+            } else if (oldStatus === 'cancelled' && newStatus !== 'cancelled') {
                 if (slot.capacity > 0) {
-                    await supabase
-                        .from('slots')
-                        .update({ capacity: slot.capacity - 1 })
-                        .eq('id', slotId);
+                    await supabase.from('slots').update({ capacity: slot.capacity - 1 }).eq('id', slotId);
                 }
             }
         }
 
-        res.json({
-            status: 'success',
-            message: `อัปเดตสถานะการจอง ID #${id} เป็น ${newStatus} เรียบร้อย`,
-            data: updatedBooking[0]
-        });
+        res.json({ status: 'success', message: 'อัปเดตสถานะเรียบร้อย', data: updatedBooking[0] });
 
     } catch (err) {
         console.error('Update Status Server Error:', err);
