@@ -45,7 +45,7 @@ router.get('/search', async (req, res) => {
         const { data, error } = await supabase
             .from('bookings')
             .select('*, services(service_name, price), slots(start_time, end_time)')
-            .or(`id.eq.${isNumeric ? cleanedQuery : 0},phone.eq.${cleanedQuery}`)
+            .or(`id.eq.${isNumeric ? cleanedQuery : 0},customer_phone.eq.${cleanedQuery}`)
             .order('id', { ascending: false });
 
         if (error) {
@@ -67,7 +67,7 @@ router.get('/search', async (req, res) => {
 router.post('/', async (req, res) => {
     try {
         const { service_id, slot_id, customer_name, phone, customer_phone, status } = req.body;
-        const inputPhone = phone || customer_phone; // รองรับทั้งสองชื่อ key
+        const inputPhone = phone || customer_phone; // รองรับทั้งสองชื่อ key ที่ส่งมาจาก frontend
 
         // Validation - ตรวจสอบข้อมูลนำเข้า
         if (!service_id || !slot_id || !customer_name || !inputPhone) {
@@ -123,15 +123,14 @@ router.post('/', async (req, res) => {
         }
 
         // Step 3: บันทึกรายการจองลงตาราง bookings
-        const bookingStatus = status || 'confirmed';
+        const bookingStatus = status || 'pending';
         const { data: bookingData, error: bookingErr } = await supabase
             .from('bookings')
             .insert([{
                 service_id: Number(service_id),
                 slot_id: Number(slot_id),
                 customer_name: customer_name.trim(),
-                customer_phone: cleanedPhone, // แมปเข้า Field customer_phone
-                phone_number: cleanedPhone,    // เผื่อความซ้ำซ้อนของ Schema
+                customer_phone: cleanedPhone, // แมปเข้าคอลัมน์ customer_phone ใน Supabase
                 status: bookingStatus
             }])
             .select();
