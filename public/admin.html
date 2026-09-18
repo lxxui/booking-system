@@ -137,7 +137,8 @@
         <!-- Table Section -->
         <div class="bg-[var(--paper)] rounded-2xl border border-[var(--ink)]/10 overflow-hidden">
             <!-- Header & Filters -->
-            <div class="p-5 stub-divider flex flex-col md:flex-row md:items-center justify-between gap-4" style="border-top:none; border-bottom: 1px solid rgba(23,21,18,0.1);">
+            <div class="p-5 stub-divider flex flex-col md:flex-row md:items-center justify-between gap-4"
+                style="border-top:none; border-bottom: 1px solid rgba(23,21,18,0.1);">
                 <div>
                     <h3 class="font-display font-semibold text-[var(--ink)] text-base">รายการจองคิวล่าสุด</h3>
                     <span class="text-xs text-[var(--ink-soft)]">อัปเดตแบบ Real-time</span>
@@ -175,8 +176,8 @@
             <div class="overflow-x-auto">
                 <table class="w-full text-left border-collapse text-sm">
                     <thead>
-                        <tr
-                            class="bg-[var(--bone)] text-xs font-semibold text-[var(--ink-soft)]" style="border-bottom: 1px solid rgba(23,21,18,0.1);">
+                        <tr class="bg-[var(--bone)] text-xs font-semibold text-[var(--ink-soft)]"
+                            style="border-bottom: 1px solid rgba(23,21,18,0.1);">
                             <th class="py-4 px-6">ID</th>
                             <th class="py-4 px-6">ผู้จอง / เบอร์โทร</th>
                             <th class="py-4 px-6">บริการ</th>
@@ -205,7 +206,8 @@
             <div id="modalIconContainer" class="w-12 h-12 rounded-full mx-auto flex items-center justify-center mb-4">
                 <!-- Icon จะถูกใส่ด้วย JS -->
             </div>
-            <h3 id="modalTitle" class="font-display text-base font-semibold text-[var(--ink)] mb-1">ยืนยันการทำรายการ</h3>
+            <h3 id="modalTitle" class="font-display text-base font-semibold text-[var(--ink)] mb-1">ยืนยันการทำรายการ
+            </h3>
             <p id="modalDesc" class="text-xs text-[var(--ink-soft)] mb-6">คุณต้องการเปลี่ยนสถานะรายการนี้ใช่หรือไม่?</p>
 
             <div class="flex items-center gap-3 justify-center">
@@ -272,9 +274,8 @@
                 altFormat: "d/m/Y H:i น.",      // รูปแบบที่แสดงให้ผู้ใช้เห็น (เช่น 25/10/2026 09:00 น.)
                 time_24hr: true,
                 locale: "th",
-                minuteIncrement: 15,            // เพิ่ม/ลด ทีละ 15 นาที (ปรับได้ตามต้องการ)
+                minuteIncrement: 15,            // เพิ่ม/ลด ทีละ 15 นาที
                 onChange: function (selectedDates, dateStr) {
-                    // เมื่อเลือกเวลาเริ่ม ให้ตั้งเวลาสิ้นสุดขั้นต่ำ (minDate) ไม่ให้เลือกเวลาก่อนหน้า
                     if (fpSlotEnd && selectedDates[0]) {
                         fpSlotEnd.set('minDate', selectedDates[0]);
                     }
@@ -300,7 +301,7 @@
                 const res = await fetch(`${API_URL}/bookings`);
                 const result = await res.json();
 
-                if (result.status === 'success') {
+                if (result.status === 'success' || result.success) {
                     allBookingsData = result.data || [];
 
                     // สรุป Stat Cards
@@ -322,20 +323,29 @@
         // ฟังก์ชัน Render ตาราง
         function renderTableData(bookings) {
             const tbody = document.getElementById('adminTableBody');
+            if (!tbody) return;
+
+            // 1. ล้างข้อมูลเก่าออกก่อนวาดใหม่เสมอ
+            tbody.innerHTML = '';
 
             if (!bookings || bookings.length === 0) {
                 tbody.innerHTML = `<tr><td colspan="8" class="text-center py-10 text-[var(--ink-soft)]">ไม่พบรายการจองที่ตรงกับตัวกรอง</td></tr>`;
                 return;
             }
 
-            tbody.innerHTML = '';
             bookings.forEach(item => {
-                const serviceName = item.services ? item.services.service_name : 'ไม่ระบุบริการ';
-                const price = item.services ? `฿${Number(item.services.price).toLocaleString()}` : '-';
+                const serviceName = item.services ? item.services.service_name : (item.service ? item.service.service_name : 'ไม่ระบุบริการ');
+                const price = item.services ? `฿${Number(item.services.price).toLocaleString()}` : (item.service ? `฿${Number(item.service.price).toLocaleString()}` : '-');
                 const customerName = item.customer_name || 'ไม่ระบุชื่อ';
-                const phone = item.phone_number || 'ไม่ระบุเบอร์';
+                const phone = item.customer_phone || item.phone_number || item.phone || 'ไม่ระบุเบอร์';
 
-                // Format วันที่และเวลาที่จอง (DD/MM/YYYY เวลา HH:mm น.)
+                // กำหนด Code สำหรับแสดงผล และ ID สำหรับส่งไปอัปเดต
+                const bookingCodeDisplay = item.booking_code ? item.booking_code : `#BK-${item.id}`;
+
+                // 📌 ใช้ Primary Key (item.id) หรือ booking_code ส่งเข้า Modal
+                const targetId = item.id || item.booking_code;
+
+                // Format วันที่และเวลาที่จอง
                 const rawDate = item.created_at || item.booking_date || item.date || (item.slots && item.slots.start_time) || '';
                 let formattedDateTime = '-';
                 if (rawDate) {
@@ -349,52 +359,51 @@
                     }) + ' น.';
                 }
 
-                // แสดงปุ่ม Action พร้อมใส่เครื่องหมาย quotes ครอบ ID
+                // แสดงปุ่ม Action 
                 let actionHTML = '';
                 if (item.status === 'pending') {
                     actionHTML = `
-                    <div class="flex items-center justify-center gap-2">
-                        <button onclick="openStatusModal('${item.id}', 'confirmed')" 
-                                class="px-3 py-1.5 bg-[var(--moss)] hover:bg-[var(--moss-dark)] text-[var(--paper)] rounded-full text-xs font-semibold transition">
-                            รับคิว
-                        </button>
-                        <button onclick="openStatusModal('${item.id}', 'cancelled')" 
-                                class="px-3 py-1.5 bg-[var(--rose)]/10 hover:bg-[var(--rose)]/20 text-[var(--rose)] border border-[var(--rose)]/30 rounded-full text-xs font-semibold transition">
-                            ยกเลิก
-                        </button>
-                    </div>
-                `;
-                } else if (item.status === 'confirmed') {
-                    actionHTML = `
-                    <button onclick="openStatusModal('${item.id}', 'cancelled')" 
+                <div class="flex items-center justify-center gap-2">
+                    <button onclick="openStatusModal('${targetId}', 'confirmed')" 
+                            class="px-3 py-1.5 bg-[var(--moss)] hover:bg-[var(--moss-dark)] text-[var(--paper)] rounded-full text-xs font-semibold transition">
+                        รับคิว
+                    </button>
+                    <button onclick="openStatusModal('${targetId}', 'cancelled')" 
                             class="px-3 py-1.5 bg-[var(--rose)]/10 hover:bg-[var(--rose)]/20 text-[var(--rose)] border border-[var(--rose)]/30 rounded-full text-xs font-semibold transition">
                         ยกเลิก
                     </button>
-                `;
+                </div>
+            `;
+                } else if (item.status === 'confirmed') {
+                    actionHTML = `
+                <button onclick="openStatusModal('${targetId}', 'cancelled')" 
+                        class="px-3 py-1.5 bg-[var(--rose)]/10 hover:bg-[var(--rose)]/20 text-[var(--rose)] border border-[var(--rose)]/30 rounded-full text-xs font-semibold transition">
+                    ยกเลิก
+                </button>
+            `;
                 } else {
                     actionHTML = `<span class="text-xs text-[var(--ink-soft)]/50 font-normal">-</span>`;
                 }
 
                 tbody.innerHTML += `
-                <tr class="hover:bg-[var(--bone)]/60 transition-colors">
-                    <td class="py-4 px-6 font-bold text-[var(--ink)]">#BK-${item.id}</td>
-                    <td class="py-4 px-6">
-                        <div class="font-bold text-[var(--ink)]">${customerName}</div>
-                        <div class="text-xs text-[var(--ink-soft)]">${phone}</div>
-                    </td>
-                    <td class="py-4 px-6 font-semibold text-[var(--ink)]">${serviceName}</td>
-                    <td class="py-4 px-6 text-xs text-[var(--ink-soft)] font-medium">${formattedDateTime}</td>
-                    <td class="py-4 px-6">
-                        <span class="px-2.5 py-1 bg-[var(--bone)] text-[var(--ink-soft)] rounded-lg text-xs font-semibold">Slot #${item.slot_id}</span>
-                    </td>
-                    <td class="py-4 px-6 font-semibold text-[var(--brass)]">${price}</td>
-                    <td class="py-4 px-6">${getStatusBadge(item.status)}</td>
-                    <td class="py-4 px-6 text-center">${actionHTML}</td>
-                </tr>
-            `;
+            <tr class="hover:bg-[var(--bone)]/60 transition-colors">
+                <td class="py-4 px-6 font-bold text-[var(--ink)]">${bookingCodeDisplay}</td>
+                <td class="py-4 px-6">
+                    <div class="font-bold text-[var(--ink)]">${customerName}</div>
+                    <div class="text-xs text-[var(--ink-soft)]">${phone}</div>
+                </td>
+                <td class="py-4 px-6 font-semibold text-[var(--ink)]">${serviceName}</td>
+                <td class="py-4 px-6 text-xs text-[var(--ink-soft)] font-medium">${formattedDateTime}</td>
+                <td class="py-4 px-6">
+                    <span class="px-2.5 py-1 bg-[var(--bone)] text-[var(--ink-soft)] rounded-lg text-xs font-semibold">Slot #${item.slot_id}</span>
+                </td>
+                <td class="py-4 px-6 font-semibold text-[var(--brass)]">${price}</td>
+                <td class="py-4 px-6">${getStatusBadge(item.status)}</td>
+                <td class="py-4 px-6 text-center">${actionHTML}</td>
+            </tr>
+        `;
             });
         }
-
         // ==========================================
         // ฟังก์ชันจัดการ Pop-up Modal ยืนยันสถานะ
         // ==========================================
@@ -497,21 +506,32 @@
             applyFilters();
         }
 
+        // 📌 ปรับปรุงฟังก์ชันอัปเดตสถานะ ให้รองรับ Response ทั้ง status === 'success' และ success === true
         async function updateStatus(id, newStatus) {
             try {
+                // 1. ดึง Token จาก localStorage เพื่อส่งไปยืนยันสิทธิ์ Admin
+                const token = localStorage.getItem('adminToken');
+
                 const res = await fetch(`${API_URL}/bookings/${id}/status`, {
                     method: 'PATCH',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}` // แนบ Token ไปให้ Backend ตรวจสอบ
+                    },
                     body: JSON.stringify({ status: newStatus })
                 });
 
                 const result = await res.json();
 
-                if (res.ok && result.status === 'success') {
+                // 2. ตรวจสอบว่า Backend ตอบกลับมาสำเร็จหรือไม่
+                if (res.ok && (result.status === 'success' || result.success === true)) {
+                    // 3. โหลดข้อมูลตารางการจองและ Slots ใหม่ทันที เพื่ออัปเดตหน้าจอ
                     await fetchAdminData();
-                    await fetchSlots();
+                    if (typeof fetchSlots === 'function') {
+                        await fetchSlots();
+                    }
                 } else {
-                    alert('ไม่สามารถอัปเดตได้: ' + (result.message || 'เกิดข้อผิดพลาด'));
+                    alert('ไม่สามารถอัปเดตได้: ' + (result.message || 'เกิดข้อผิดพลาดในการบันทึก'));
                 }
             } catch (err) {
                 console.error('updateStatus error:', err);
@@ -537,13 +557,9 @@
                 const res = await fetch(`${API_URL}/slots`);
                 const result = await res.json();
 
-                if (result.success && Array.isArray(result.data) && result.data.length > 0) {
+                if ((result.success || result.status === 'success') && Array.isArray(result.data) && result.data.length > 0) {
                     container.innerHTML = '';
                     result.data.forEach(slot => {
-
-                        // ==========================================
-                        // 🟢 วางแทนที่ตัวแปร start และ end ตรงนี้ครับ!
-                        // ==========================================
                         const start = new Date(slot.start_time).toLocaleString('th-TH', {
                             timeZone: 'Asia/Bangkok',
                             day: 'numeric',
@@ -560,7 +576,6 @@
                             minute: '2-digit',
                             hour12: false
                         });
-                        // ==========================================
 
                         container.innerHTML += `
                     <div class="p-3 border border-[var(--ink)]/10 rounded-xl flex items-center justify-between bg-white">
@@ -582,11 +597,11 @@
                 container.innerHTML = `<p class="text-[var(--rose)] text-sm col-span-full">ไม่สามารถโหลด Slots ได้</p>`;
             }
         }
+
         // สร้าง Slot ใหม่
         async function createSlot(e) {
             e.preventDefault();
 
-            // ดึงค่า Date Object จาก Flatpickr โดยตรง
             const startDates = fpSlotStart ? fpSlotStart.selectedDates : [];
             const endDates = fpSlotEnd ? fpSlotEnd.selectedDates : [];
 
@@ -595,7 +610,6 @@
                 return;
             }
 
-            // ฟังก์ชันช่วยแปลง Date Object เป็น ISO String ที่คงเวลาท้องถิ่นไว้
             const formatToLocalISO = (dateObj) => {
                 const tzOffset = -dateObj.getTimezoneOffset();
                 const diff = tzOffset >= 0 ? '+' : '-';
@@ -615,14 +629,18 @@
             const capacity = document.getElementById('capacity').value;
 
             try {
+                const token = localStorage.getItem('adminToken');
                 const res = await fetch(`${API_URL}/slots`, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
                     body: JSON.stringify({ start_time, end_time, capacity: Number(capacity) })
                 });
                 const result = await res.json();
 
-                if (result.success) {
+                if (result.success || result.status === 'success') {
                     document.getElementById('addSlotForm').reset();
                     if (fpSlotStart) fpSlotStart.clear();
                     if (fpSlotEnd) fpSlotEnd.clear();
@@ -634,13 +652,18 @@
                 alert('เกิดข้อผิดพลาดในการเชื่อมต่อ');
             }
         }
+
         // ลบ Slot
         async function deleteSlot(id) {
             if (!confirm('ยืนยันลบช่วงเวลานี้?')) return;
             try {
-                const res = await fetch(`${API_URL}/slots/${id}`, { method: 'DELETE' });
+                const token = localStorage.getItem('adminToken');
+                const res = await fetch(`${API_URL}/slots/${id}`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
                 const result = await res.json();
-                if (result.success) {
+                if (result.success || result.status === 'success') {
                     fetchSlots();
                 } else {
                     alert('ลบไม่สำเร็จ: ' + result.message);

@@ -185,54 +185,42 @@ router.patch('/:id/status', async (req, res) => {
             return res.status(400).json({ status: 'error', message: 'สถานะไม่ถูกต้อง' });
         }
 
+        // 📌 ปรับปรุงจุดนี้: ค้นหาทั้งรหัส BK-C3UXVS หรือ ID เพียวๆ
         const { data: currentBooking, error: fetchErr } = await supabase
             .from('bookings')
-            .select('slot_id, status')
-            .eq('id', id)
-            .single();
+            .select('*')
+            .or(`id.eq.${id},booking_code.eq.${id},booking_code.eq.BK-${id}`)
+            .maybeSingle();
 
         if (fetchErr || !currentBooking) {
-            return res.status(404).json({ status: 'error', message: 'ไม่พบรายการจองนี้' });
+            console.error('Fetch Booking Error:', fetchErr);
+            return res.status(404).json({ status: 'error', message: `ไม่พบรายการจอง #${id}` });
         }
 
-        const oldStatus = currentBooking.status;
-        const slotId = currentBooking.slot_id;
+        const realId = currentBooking.id;
 
-        if (oldStatus === newStatus) {
-            return res.json({ status: 'success', message: 'สถานะไม่มีการเปลี่ยนแปลง', data: currentBooking });
-        }
-
+        // อัปเดตข้อมูลด้วย Primary Key จริงที่เจอในฐานข้อมูล
         const { data: updatedBooking, error: updateErr } = await supabase
             .from('bookings')
             .update({ status: newStatus })
-            .eq('id', id)
+            .eq('id', realId)
             .select();
 
         if (updateErr) {
-            return res.status(500).json({ status: 'error', message: 'ไม่สามารถอัปเดตสถานะได้' });
+            console.error('Update Error:', updateErr);
+            return res.status(500).json({ status: 'error', message: updateErr.message });
         }
 
-        const { data: slot } = await supabase
-            .from('slots')
-            .select('capacity')
-            .eq('id', slotId)
-            .single();
-
-        if (slot) {
-            if (newStatus === 'cancelled' && oldStatus !== 'cancelled') {
-                await supabase.from('slots').update({ capacity: slot.capacity + 1 }).eq('id', slotId);
-            } else if (oldStatus === 'cancelled' && newStatus !== 'cancelled') {
-                if (slot.capacity > 0) {
-                    await supabase.from('slots').update({ capacity: slot.capacity - 1 }).eq('id', slotId);
-                }
-            }
-        }
-
-        res.json({ status: 'success', message: 'อัปเดตสถานะเรียบร้อย', data: updatedBooking[0] });
+        return res.json({
+            status: 'success',
+            success: true,
+            message: 'อัปเดตสถานะเรียบร้อยแล้ว',
+            data: updatedBooking ? updatedBooking[0] : null
+        });
 
     } catch (err) {
-        console.error('Update Status Server Error:', err);
-        res.status(500).json({ status: 'error', message: 'เกิดข้อผิดพลาดของระบบเซิร์ฟเวอร์' });
+        console.error('Server Error:', err);
+        res.status(500).json({ status: 'error', message: err.message });
     }
 });
 
