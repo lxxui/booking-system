@@ -531,11 +531,8 @@
         }
 
         /**
-             * ค้นหาและแสดงผลสถานะการจองตามเบอร์โทร
-             */
-        /**
-             * ค้นหาและแสดงผลสถานะการจองตามเบอร์โทร
-             */
+     * ค้นหาและแสดงผลสถานะการจองตามเบอร์โทร (Safe Version)
+     */
         async function checkBookingStatus() {
             const searchInput = document.getElementById('searchInput');
             const resultBox = document.getElementById('modalStatusResult');
@@ -568,7 +565,7 @@
                 });
 
                 if (item) {
-                    // แปลงสถานะ
+                    // 1. แปลงสถานะ
                     let statusText = 'รอยืนยัน';
                     let statusClass = 'text-[var(--brass)]';
                     if (item.status === 'confirmed') {
@@ -579,42 +576,61 @@
                         statusClass = 'text-[var(--rose)]';
                     }
 
-                    // รูปแบบคิว/หมายเลขการจอง
-                    const queueNumber = item.queue_number || item.id || '01';
+                    // 2. จัดการลำดับคิว
+                    const queueNumber = item.queue_number || item.id || '1';
                     const formattedQueue = String(queueNumber).padStart(3, '0');
                     const displayCode = item.booking_code ? item.booking_code : `BK-${formattedQueue}`;
 
-                    // แปลงรูปแบบเวลา
+                    // 3. แปลงเวลาอย่างปลอดภัย (Safe Date Parsing)
                     let slotTimeString = 'ไม่ระบุรอบเวลา';
                     const slotData = item.slots || item.slot;
-                    if (slotData) {
-                        const startObj = new Date(slotData.start_time);
-                        const endObj = new Date(slotData.end_time);
 
-                        const dayName = startObj.toLocaleDateString('th-TH', { weekday: 'long', timeZone: 'Asia/Bangkok' });
-                        const dateNum = startObj.getDate();
-                        const monthName = startObj.toLocaleDateString('th-TH', { month: 'ก.ย.', timeZone: 'Asia/Bangkok' }); // ย่อเดือน
-                        const startTime = startObj.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit', hour12: false, timeZone: 'Asia/Bangkok' });
-                        const endTime = endObj.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit', hour12: false, timeZone: 'Asia/Bangkok' });
+                    if (slotData && slotData.start_time) {
+                        try {
+                            const startObj = new Date(slotData.start_time);
+                            const endObj = slotData.end_time ? new Date(slotData.end_time) : startObj;
 
-                        slotTimeString = `${dayName}ที่ ${dateNum} ${monthName} · ${startTime} - ${endTime} น.`;
+                            // ตรวจสอบว่าเป็น Valid Date หรือไม่
+                            if (!isNaN(startObj.getTime())) {
+                                const dayNames = ['อาทิตย์', 'จันทร์', 'อังคาร', 'พุธ', 'พฤหัสบดี', 'ศุกร์', 'เสาร์'];
+                                const monthNames = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'];
+
+                                const dayName = dayNames[startObj.getDay()];
+                                const dateNum = startObj.getDate();
+                                const monthName = monthNames[startObj.getMonth()];
+
+                                const startTime = startObj.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit', hour12: false });
+                                const endTime = endObj.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit', hour12: false });
+
+                                slotTimeString = `${dayName}ที่ ${dateNum} ${monthName} · ${startTime} - ${endTime} น.`;
+                            }
+                        } catch (e) {
+                            console.warn('Date parsing error:', e);
+                        }
                     }
 
+                    // 4. จัดการข้อมูลบริการและราคา
                     const serviceData = item.services || item.service;
-                    const serviceName = serviceData?.service_name || (item.service_id ? `บริการรหัส #${item.service_id}` : 'บริการทั่วไป');
-                    const servicePrice = serviceData?.price ? `฿${Number(serviceData.price).toLocaleString()}` : '';
-                    const customerPhoneFormatted = (item.phone || item.customer_phone || '').replace(/(\d{3})(\d{3})(\d{4})/, '$1-$2-$3');
+                    const serviceName = serviceData?.service_name || item.service_name || (item.service_id ? `บริการรหัส #${item.service_id}` : 'บริการทั่วไป');
 
+                    const rawPrice = serviceData?.price || item.price;
+                    const servicePrice = rawPrice ? `฿${Number(rawPrice).toLocaleString()}` : '';
+
+                    const rawPhone = item.phone || item.customer_phone || '';
+                    const customerPhoneFormatted = rawPhone.length === 10
+                        ? rawPhone.replace(/(\d{3})(\d{3})(\d{4})/, '$1-$2-$3')
+                        : rawPhone;
+
+                    // 5. แสดง Card บัตรคิว
                     resultBox.className = 'space-y-4';
                     resultBox.innerHTML = `
-                    <!-- บัตรคิว Ticket Card (ใช้ html2canvas จับภาพส่วนนี้) -->
                     <div id="bookingCardTarget" class="relative bg-[#FAF7F2] border border-[#E8E2D5] rounded-3xl p-6 text-left shadow-sm overflow-hidden" style="color: #2D2A26;">
                         
-                        <!-- รอยบ๋อมซ้าย-ขวา ตามสไตล์ Ticket -->
+                        <!-- รอยบ๋อมบัตรคิว -->
                         <div class="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1/2 w-6 h-6 bg-white rounded-full border-r border-[#E8E2D5]"></div>
                         <div class="absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/2 w-6 h-6 bg-white rounded-full border-l border-[#E8E2D5]"></div>
 
-                        <!-- ส่วนบน: ลำดับคิว & สถานะ -->
+                        <!-- Header คิว -->
                         <div class="flex justify-between items-start pb-4">
                             <div>
                                 <span class="text-xs text-[#8C8275] block mb-1">บัตรคิวการจอง</span>
@@ -625,10 +641,9 @@
                             <span class="text-xs font-bold ${statusClass}">${statusText}</span>
                         </div>
 
-                        <!-- เส้นประกลางบัตร -->
                         <div class="border-b-2 border-dashed border-[#E8E2D5] my-2"></div>
 
-                        <!-- ส่วนล่าง: บริการ, วันเวลา, ผู้จอง -->
+                        <!-- รายละเอียด -->
                         <div class="pt-3 space-y-3">
                             <div>
                                 <h4 class="font-bold text-base text-[#2D2A26] leading-snug">${serviceName}</h4>
@@ -644,14 +659,14 @@
                                 </div>
                             </div>
 
-                            <!-- Remark แจ้งลูกค้า -->
+                            <!-- Remark -->
                             <div class="bg-[rgba(185,145,91,0.08)] border border-[rgba(185,145,91,0.2)] rounded-xl p-2.5 text-[11px] text-[#8C7147] font-medium text-center flex items-center justify-center gap-1.5 mt-2">
                                 <span>📌 โปรดแสดงบัตรคิวนี้แก่พนักงานเมื่อมาถึงร้านตามวันและเวลาที่นัดหมาย</span>
                             </div>
                         </div>
                     </div>
 
-                    <!-- ปุ่มบันทึกรูปภาพ -->
+                    <!-- ปุ่มบันทึกภาพ -->
                     <button type="button" 
                         onclick="downloadBookingCard('${displayCode}')"
                         class="w-full py-3 bg-[#4B5D46] hover:bg-[#3A4A36] text-white rounded-2xl text-xs font-semibold flex items-center justify-center gap-2 transition-all shadow-md active:scale-98">
@@ -666,12 +681,13 @@
                     resultBox.innerHTML = 'ไม่พบข้อมูลการจองสำหรับเบอร์โทรศัพท์นี้ กรุณาตรวจสอบอีกครั้ง';
                 }
             } catch (err) {
-                console.error('checkBookingStatus error:', err);
+                console.error('checkBookingStatus error detail:', err);
                 resultBox.className = 'p-4 rounded-2xl bg-[rgba(201,123,108,0.1)] text-center text-[var(--rose)] font-medium text-xs';
                 resultBox.innerHTML = 'เกิดข้อผิดพลาดในการดึงข้อมูลการจอง';
             }
         }
-        
+
+
         /**
          * ฟังก์ชันแปลง Card เป็นรูปภาพแล้วดาวน์โหลด
          */
