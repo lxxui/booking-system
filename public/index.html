@@ -533,6 +533,9 @@
         /**
              * ค้นหาและแสดงผลสถานะการจองตามเบอร์โทร
              */
+        /**
+             * ค้นหาและแสดงผลสถานะการจองตามเบอร์โทร
+             */
         async function checkBookingStatus() {
             const searchInput = document.getElementById('searchInput');
             const resultBox = document.getElementById('modalStatusResult');
@@ -565,83 +568,97 @@
                 });
 
                 if (item) {
-                    let statusBadge = '';
+                    // แปลงสถานะ
+                    let statusText = 'รอยืนยัน';
+                    let statusClass = 'text-[var(--brass)]';
                     if (item.status === 'confirmed') {
-                        statusBadge = '<span class="bg-[rgba(75,93,70,0.1)] text-[var(--moss-dark)] px-2.5 py-1 rounded-full text-[11px] font-bold">ยืนยันแล้ว</span>';
+                        statusText = 'ยืนยันแล้ว';
+                        statusClass = 'text-[var(--moss-dark)]';
                     } else if (item.status === 'cancelled') {
-                        statusBadge = '<span class="bg-[rgba(201,123,108,0.15)] text-[var(--rose)] px-2.5 py-1 rounded-full text-[11px] font-bold">ยกเลิกแล้ว</span>';
-                    } else {
-                        statusBadge = '<span class="bg-[rgba(185,145,91,0.15)] text-[var(--brass)] px-2.5 py-1 rounded-full text-[11px] font-bold">รอยืนยัน</span>';
+                        statusText = 'ยกเลิกแล้ว';
+                        statusClass = 'text-[var(--rose)]';
                     }
 
+                    // รูปแบบคิว/หมายเลขการจอง
+                    const queueNumber = item.queue_number || item.id || '01';
+                    const formattedQueue = String(queueNumber).padStart(3, '0');
+                    const displayCode = item.booking_code ? item.booking_code : `BK-${formattedQueue}`;
+
+                    // แปลงรูปแบบเวลา
                     let slotTimeString = 'ไม่ระบุรอบเวลา';
                     const slotData = item.slots || item.slot;
                     if (slotData) {
-                        const start = new Date(slotData.start_time).toLocaleString('th-TH', {
-                            timeZone: 'Asia/Bangkok', day: 'numeric', month: 'numeric', year: '2-digit', hour: '2-digit', minute: '2-digit', hour12: false
-                        });
-                        const end = new Date(slotData.end_time).toLocaleTimeString('th-TH', {
-                            timeZone: 'Asia/Bangkok', hour: '2-digit', minute: '2-digit', hour12: false
-                        });
-                        slotTimeString = `${start} - ${end} น.`;
-                    } else if (item.slot_id) {
-                        slotTimeString = `Slot ID: ${item.slot_id}`;
+                        const startObj = new Date(slotData.start_time);
+                        const endObj = new Date(slotData.end_time);
+
+                        const dayName = startObj.toLocaleDateString('th-TH', { weekday: 'long', timeZone: 'Asia/Bangkok' });
+                        const dateNum = startObj.getDate();
+                        const monthName = startObj.toLocaleDateString('th-TH', { month: 'ก.ย.', timeZone: 'Asia/Bangkok' }); // ย่อเดือน
+                        const startTime = startObj.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit', hour12: false, timeZone: 'Asia/Bangkok' });
+                        const endTime = endObj.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit', hour12: false, timeZone: 'Asia/Bangkok' });
+
+                        slotTimeString = `${dayName}ที่ ${dateNum} ${monthName} · ${startTime} - ${endTime} น.`;
                     }
 
                     const serviceData = item.services || item.service;
                     const serviceName = serviceData?.service_name || (item.service_id ? `บริการรหัส #${item.service_id}` : 'บริการทั่วไป');
                     const servicePrice = serviceData?.price ? `฿${Number(serviceData.price).toLocaleString()}` : '';
-                    const displayCode = item.booking_code ? item.booking_code : `#BK-${item.id}`;
+                    const customerPhoneFormatted = (item.phone || item.customer_phone || '').replace(/(\d{3})(\d{3})(\d{4})/, '$1-$2-$3');
 
-                    resultBox.className = 'space-y-3';
+                    resultBox.className = 'space-y-4';
                     resultBox.innerHTML = `
-                    <!-- Card ที่จะนำไปจับภาพเป็น Image -->
-                    <div id="bookingCardTarget" class="relative p-5 rounded-2xl bg-white border border-[rgba(23,21,18,0.1)] shadow-sm text-left space-y-3">
-                        <div class="flex justify-between items-center stub-line stub-card pb-2.5" style="border-top:none">
+                    <!-- บัตรคิว Ticket Card (ใช้ html2canvas จับภาพส่วนนี้) -->
+                    <div id="bookingCardTarget" class="relative bg-[#FAF7F2] border border-[#E8E2D5] rounded-3xl p-6 text-left shadow-sm overflow-hidden" style="color: #2D2A26;">
+                        
+                        <!-- รอยบ๋อมซ้าย-ขวา ตามสไตล์ Ticket -->
+                        <div class="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1/2 w-6 h-6 bg-white rounded-full border-r border-[#E8E2D5]"></div>
+                        <div class="absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/2 w-6 h-6 bg-white rounded-full border-l border-[#E8E2D5]"></div>
+
+                        <!-- ส่วนบน: ลำดับคิว & สถานะ -->
+                        <div class="flex justify-between items-start pb-4">
                             <div>
-                                <span class="text-[10px] text-[var(--ink-soft)] font-bold block">หมายเลขการจอง</span>
-                                <span class="font-display font-bold text-[var(--ink)] text-sm">${displayCode}</span>
+                                <span class="text-xs text-[#8C8275] block mb-1">บัตรคิวการจอง</span>
+                                <div class="font-display font-black text-3xl md:text-4xl text-[#B9915B] tracking-tight">
+                                    คิวที่ ${formattedQueue}
+                                </div>
                             </div>
-                            ${statusBadge}
+                            <span class="text-xs font-bold ${statusClass}">${statusText}</span>
                         </div>
 
-                        <div class="grid grid-cols-2 gap-2 text-xs bg-[var(--bone)] p-2.5 rounded-xl">
-                            <div>
-                                <span class="text-[var(--ink-soft)] block text-[10px]">ชื่อผู้จอง</span>
-                                <span class="font-semibold text-[var(--ink)]">${item.customer_name || '-'}</span>
-                            </div>
-                            <div>
-                                <span class="text-[var(--ink-soft)] block text-[10px]">เบอร์โทรศัพท์</span>
-                                <span class="font-semibold text-[var(--ink)]">${item.phone || item.customer_phone || '-'}</span>
-                            </div>
-                        </div>
+                        <!-- เส้นประกลางบัตร -->
+                        <div class="border-b-2 border-dashed border-[#E8E2D5] my-2"></div>
 
-                        <div class="space-y-2 text-xs pt-1">
-                            <div class="flex justify-between items-start">
-                                <div>
-                                    <span class="text-[var(--ink-soft)] block text-[10px]">บริการที่เลือก</span>
-                                    <span class="font-bold text-[var(--ink)] text-sm">${serviceName}</span>
-                                </div>
-                                ${servicePrice ? `<span class="font-extrabold text-[var(--brass)] text-sm bg-[rgba(185,145,91,0.1)] px-2 py-0.5 rounded-lg">${servicePrice}</span>` : ''}
+                        <!-- ส่วนล่าง: บริการ, วันเวลา, ผู้จอง -->
+                        <div class="pt-3 space-y-3">
+                            <div>
+                                <h4 class="font-bold text-base text-[#2D2A26] leading-snug">${serviceName}</h4>
+                                <p class="text-xs text-[#6E665A] font-medium mt-1">${slotTimeString}</p>
                             </div>
 
-                            <div class="bg-[rgba(75,93,70,0.05)] p-2.5 rounded-xl flex items-center justify-between">
-                                <div>
-                                    <span class="text-[var(--moss-dark)] block text-[10px] font-semibold">รอบเวลาที่จอง</span>
-                                    <span class="font-bold text-[var(--ink)]">${slotTimeString}</span>
+                            <div class="flex justify-between items-end pt-1">
+                                <div class="text-xs text-[#6E665A]">
+                                    คุณ${item.customer_name || '-'} · ${customerPhoneFormatted}
                                 </div>
+                                <div class="font-bold text-base text-[#2D2A26]">
+                                    ${servicePrice}
+                                </div>
+                            </div>
+
+                            <!-- Remark แจ้งลูกค้า -->
+                            <div class="bg-[rgba(185,145,91,0.08)] border border-[rgba(185,145,91,0.2)] rounded-xl p-2.5 text-[11px] text-[#8C7147] font-medium text-center flex items-center justify-center gap-1.5 mt-2">
+                                <span>📌 โปรดแสดงบัตรคิวนี้แก่พนักงานเมื่อมาถึงร้านตามวันและเวลาที่นัดหมาย</span>
                             </div>
                         </div>
                     </div>
 
-                    <!-- ปุ่มบันทึกภาพ -->
+                    <!-- ปุ่มบันทึกรูปภาพ -->
                     <button type="button" 
                         onclick="downloadBookingCard('${displayCode}')"
-                        class="w-full py-2.5 bg-[var(--moss)] hover:bg-[var(--moss-dark)] text-white rounded-xl text-xs font-semibold flex items-center justify-center gap-2 transition-all shadow-sm">
+                        class="w-full py-3 bg-[#4B5D46] hover:bg-[#3A4A36] text-white rounded-2xl text-xs font-semibold flex items-center justify-center gap-2 transition-all shadow-md active:scale-98">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
                         </svg>
-                        บันทึกภาพบัตรคิว
+                        บันทึกภาพบัตรคิวลงเครื่อง
                     </button>
                 `;
                 } else {
@@ -654,7 +671,7 @@
                 resultBox.innerHTML = 'เกิดข้อผิดพลาดในการดึงข้อมูลการจอง';
             }
         }
-
+        
         /**
          * ฟังก์ชันแปลง Card เป็นรูปภาพแล้วดาวน์โหลด
          */
