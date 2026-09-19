@@ -5,7 +5,7 @@ import { fileURLToPath } from 'node:url';
 import process from 'node:process';
 import dotenv from 'dotenv';
 
-// นำเข้า Routes Modules (ต้องใส่นามสกุล .js ทุกครั้ง)
+// นำเข้า Routes Modules
 import bookingRoutes from './routes/bookings.js';
 import serviceRoutes from './routes/services.js';
 import slotsRoute from './routes/slots.js';
@@ -14,12 +14,12 @@ import reviewsRouter from './routes/reviews.js';
 
 dotenv.config();
 
-// สร้าง __dirname สำหรับใช้งานในระบบ ES Modules
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+// ⚡ เปลี่ยน Default Port เป็น 5000 เพื่อเลี่ยง Port 3000
+const PORT = process.env.PORT || 5000;
 
 // Middlewares
 app.use(cors());
@@ -32,7 +32,10 @@ app.use('/api/slots', slotsRoute);
 app.use('/api/auth', authRoutes);
 app.use('/api/reviews', reviewsRouter);
 
-// 🌐 2. Clean Page Routes ( HTML Pages )
+// 📁 2. Static Files (ย้ายมาไว้ตรงนี้เพื่อให้โหลดไฟล์ .css / .js ในโฟลเดอร์ public ได้ถูกต้อง)
+app.use(express.static(path.join(__dirname, 'public')));
+
+// 🌐 3. Clean Page Routes ( HTML Pages )
 app.get(['/', '/index'], (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
@@ -57,10 +60,7 @@ app.get('/services', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'services.html'));
 });
 
-// 📁 3. Static Files Middleware
-app.use(express.static('public'));
-
-// Global Error Handler
+// Global 404 Handler
 app.use((req, res) => {
   res.status(404).json({ status: 'error', message: 'ไม่พบ Endpoint ที่เรียกใช้งาน' });
 });
