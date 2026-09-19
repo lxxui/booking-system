@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="th">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -46,8 +47,13 @@
       background: var(--bone);
     }
 
-    .stub-line::before { left: -9px; }
-    .stub-line::after { right: -9px; }
+    .stub-line::before {
+      left: -9px;
+    }
+
+    .stub-line::after {
+      right: -9px;
+    }
 
     .ticket-notch-left,
     .ticket-notch-right {
@@ -61,10 +67,16 @@
       z-index: 10;
     }
 
-    .ticket-notch-left { left: -11px; }
-    .ticket-notch-right { right: -11px; }
+    .ticket-notch-left {
+      left: -11px;
+    }
+
+    .ticket-notch-right {
+      right: -11px;
+    }
   </style>
 </head>
+
 <body class="min-h-screen flex items-center justify-center p-4 antialiased">
 
   <div class="relative max-w-md w-full bg-[var(--paper)] rounded-2xl shadow-xl p-6">
@@ -76,9 +88,10 @@
 
     <!-- ช่องค้นหา -->
     <div class="flex gap-2 mb-6">
-      <input type="text" id="searchInput" placeholder="ระบุเบอร์โทรศัพท์"  maxlength="10"
-             class="w-full px-4 py-2.5 border border-[var(--ink)]/15 bg-white rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[var(--moss)]/30 focus:border-[var(--moss)]">
-      <button onclick="checkStatus()" class="px-5 py-2.5 bg-[var(--moss)] hover:bg-[var(--moss-dark)] text-[var(--paper)] rounded-full text-sm font-semibold transition shrink-0">
+      <input type="text" id="searchInput" placeholder="ระบุเบอร์โทรศัพท์" maxlength="10"
+        class="w-full px-4 py-2.5 border border-[var(--ink)]/15 bg-white rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[var(--moss)]/30 focus:border-[var(--moss)]">
+      <button onclick="checkStatus()"
+        class="px-5 py-2.5 bg-[var(--moss)] hover:bg-[var(--moss-dark)] text-[var(--paper)] rounded-full text-sm font-semibold transition shrink-0">
         ค้นหา
       </button>
     </div>
@@ -86,6 +99,9 @@
     <!-- ผลการค้นหา -->
     <div id="resultContainer" class="space-y-3"></div>
   </div>
+
+  <!-- นำเข้า html2canvas ในแท็ก <head> ของไฟล์นี้ด้วยนะครับ -->
+  <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script> -->
 
   <script>
     async function checkStatus() {
@@ -103,23 +119,51 @@
         if (result.status === 'success' && result.data.length > 0) {
           container.innerHTML = '';
           result.data.forEach(item => {
+            const isConfirmed = item.status === 'confirmed';
             const isCancelled = item.status === 'cancelled';
             const serviceName = item.services?.service_name || 'ไม่ระบุบริการ';
-            
-            container.innerHTML += `
-              <div class="p-4 border border-[var(--ink)]/10 rounded-xl bg-white space-y-2.5">
-                <div class="flex justify-between items-center stub-line pb-2.5" style="border-top:none">
-                  <span class="font-display font-bold text-[var(--ink)] text-sm">#BK-${item.id}</span>
-                  ${getStatusBadge(item.status)}
-                </div>
-                
-                <p class="text-xs text-[var(--ink-soft)]"><span class="font-semibold text-[var(--ink)]">บริการ:</span> ${serviceName}</p>
+            const customerName = item.customer_name || item.name || 'ไม่ระบุชื่อ';
+            const bookingDate = item.booking_date || '-';
+            const bookingTime = item.booking_time || '-';
 
-                <!-- แสดงเหตุผลถ้าถูกยกเลิก -->
-                ${isCancelled ? `
-                  <div class="mt-2 p-2.5 bg-[var(--rose)]/10 border border-[var(--rose)]/25 rounded-lg text-xs text-[var(--rose)]">
-                    <span class="font-semibold">เหตุผลการยกเลิก:</span> ${item.cancel_reason || 'ไม่ได้ระบุเหตุผล'}
+            container.innerHTML += `
+              <div class="space-y-3">
+                <!-- การ์ดที่จะบันทึกเป็นรูปภาพ -->
+                <div id="ticket-${item.id}" class="p-5 border border-[var(--ink)]/10 rounded-2xl bg-white space-y-3 shadow-sm">
+                  <div class="flex justify-between items-center stub-line pb-2.5" style="border-top:none">
+                    <span class="font-display font-bold text-[var(--ink)] text-sm">#BK-${item.id}</span>
+                    ${getStatusBadge(item.status)}
                   </div>
+                  
+                  <div class="space-y-1.5 text-xs text-[var(--ink-soft)]">
+                    <p><span class="font-semibold text-[var(--ink)]">ชื่อผู้จอง:</span> ${customerName}</p>
+                    <p><span class="font-semibold text-[var(--ink)]">บริการ:</span> ${serviceName}</p>
+                    <p><span class="font-semibold text-[var(--ink)]">วันที่ / เวลา:</span> ${bookingDate} | ${bookingTime}</p>
+                  </div>
+
+                  <!-- แสดงเหตุผลถ้าถูกยกเลิก -->
+                  ${isCancelled ? `
+                    <div class="mt-2 p-2.5 bg-[var(--rose)]/10 border border-[var(--rose)]/25 rounded-lg text-xs text-[var(--rose)]">
+                      <span class="font-semibold">เหตุผลการยกเลิก:</span> ${item.cancel_reason || 'ไม่ได้ระบุเหตุผล'}
+                    </div>
+                  ` : ''}
+
+                  <!-- ข้อความท้ายตั๋วที่จะติดไปในรูปภาพ -->
+                  ${isConfirmed ? `
+                    <div class="pt-2 border-t border-dashed border-stone-200 text-center text-[10px] text-stone-400">
+                      กรุณายื่นภาพนี้ให้เจ้าหน้าที่เมื่อมาถึงร้าน
+                    </div>
+                  ` : ''}
+                </div>
+
+                <!-- ปุ่มบันทึกภาพ (แสดงเฉพาะเมื่ออนุมัติแล้ว) -->
+                ${isConfirmed ? `
+                  <button onclick="downloadTicket('ticket-${item.id}', '${item.id}')" class="w-full py-2.5 px-4 bg-[var(--moss-dark)] text-white text-xs font-semibold rounded-xl hover:opacity-90 transition-all shadow-sm flex items-center justify-center gap-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                    </svg>
+                    บันทึกภาพคิวเข้าเครื่อง
+                  </button>
                 ` : ''}
               </div>
             `;
@@ -130,6 +174,27 @@
       } catch (err) {
         container.innerHTML = `<p class="text-center text-sm text-[var(--rose)] py-4">เกิดข้อผิดพลาดในการเชื่อมต่อ</p>`;
       }
+    }
+
+    // ฟังก์ชันสำหรับเซฟภาพคิว
+    function downloadTicket(elementId, bookingId) {
+      const ticketElement = document.getElementById(elementId);
+      if (!ticketElement) return;
+
+      if (typeof html2canvas === 'undefined') {
+        alert('ระบบบันทึกภาพยังไม่พร้อมใช้งาน กรุณาตรวจสอบว่าได้ใส่ CDN html2canvas ในไฟล์แล้ว');
+        return;
+      }
+
+      html2canvas(ticketElement, {
+        scale: 2,
+        backgroundColor: '#ffffff'
+      }).then(canvas => {
+        const link = document.createElement('a');
+        link.download = `booking-ticket-BK-${bookingId}.png`;
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+      });
     }
 
     function getStatusBadge(status) {
@@ -149,4 +214,5 @@
     });
   </script>
 </body>
+
 </html>
